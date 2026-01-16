@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>📋 Cadastro de Pet</title>
+  <style>
+    body{font-family:Arial;background:#E8F5E9;margin:0;padding:0;}
+    header{background:#C8E6C9;color:#2E7D32;padding:15px;text-align:center;font-size:24px;font-weight:bold;}
+    nav{text-align:center;padding:10px;background:#2E7D32;}
+    nav a{color:white;margin:0 10px;text-decoration:none;font-weight:bold;}
+    form{max-width:400px;margin:20px auto;background:#fff;padding:20px;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,0.2);}
+    label{display:block;margin-top:10px;font-weight:bold;}
+    input,select{width:100%;padding:8px;margin-top:5px;border:1px solid #ccc;border-radius:4px;}
+    button{margin-top:15px;padding:10px;background:#2E7D32;color:white;border:none;border-radius:4px;font-size:16px;cursor:pointer;}
+    button:hover{background:#1B5E20;}
+    .alert{color:red;font-size:14px;margin-top:10px;}
+    #popupFoto {
+      display:none;
+      position:fixed;
+      top:0;left:0;width:100%;height:100%;
+      background:rgba(0,0,0,0.5);
+      z-index:1000;
+      justify-content:center;
+      align-items:center;
+    }
+    #popupFoto .conteudo {
+      background:#fff;
+      padding:20px;
+      border-radius:8px;
+      max-width:300px;
+      text-align:center;
+      box-shadow:0 2px 6px rgba(0,0,0,0.3);
+    }
+    #popupFoto h3 {margin-top:0;color:#2E7D32;}
+    #popupFoto button {
+      margin-top:15px;
+      padding:8px 16px;
+      background:#2E7D32;
+      color:white;
+      border:none;
+      border-radius:4px;
+      cursor:pointer;
+    }
+    #popupFoto button:hover {background:#1B5E20;}
+    #previewFoto {
+      margin-top:10px;
+      text-align:center;
+    }
+    #previewFoto img {
+      max-width:200px;
+      border-radius:8px;
+      box-shadow:0 2px 6px rgba(0,0,0,0.2);
+    }
+  </style>
+</head>
+<body>
+  <header>📋 Cadastro de Pet</header>
+  <nav>
+    <a href="index.html">Início</a>
+    <a href="lista.html">Lista de Pets</a>
+    <a href="mapa.html">Mapa</a>
+  </nav>
+
+  <form id="formCadastro">
+    <label for="nome">Nome</label>
+    <input type="text" id="nome" required>
+
+    <label for="tipo">Tipo</label>
+    <select id="tipo" required>
+      <option value="">Selecione...</option>
+      <option value="cachorro">🐶 Cachorro</option>
+      <option value="gato">🐱 Gato</option>
+    </select>
+
+    <label for="cor">Cor</label>
+    <input type="text" id="cor" required>
+
+    <label for="contato">Contato</label>
+    <input type="text" id="contato" required>
+
+    <label>Foto do Pet</label>
+    <button type="button" onclick="abrirPopup()">Selecionar Foto</button>
+    <input type="file" id="foto" accept="image/*" style="display:none;" required>
+    <div id="previewFoto"></div>
+
+    <label for="status">Status</label>
+    <select id="status" required>
+      <option value="perdido">❌ Perdido</option>
+      <option value="encontrado">✅ Encontrado</option>
+    </select>
+
+    <label for="latitude">Latitude (caso não detectada)</label>
+    <input type="text" id="latitude">
+
+    <label for="longitude">Longitude (caso não detectada)</label>
+    <input type="text" id="longitude">
+
+    <div id="alertaLocalizacao" class="alert"></div>
+
+    <button type="submit">Cadastrar</button>
+  </form>
+
+  <!-- Popup de orientação -->
+  <div id="popupFoto">
+    <div class="conteudo">
+      <h3>📸 Como anexar a foto</h3>
+      <p>Escolha uma imagem do seu computador ou celular.<br>
+      Após selecionar, clique em <b>OK</b> para fechar este aviso.</p>
+      <button onclick="abrirSeletor()">OK</button>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    const supabaseClient = supabase.createClient(
+      "https://ijzkiooyisfdmbmdjmso.supabase.co",
+      "sb_publishable_OTMLQWCUsgMZSuRALOk--g_EVe657MT"
+    );
+
+    let latitude = null;
+    let longitude = null;
+
+    // Captura localização automática
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          latitude = pos.coords.latitude;
+          longitude = pos.coords.longitude;
+          document.getElementById("latitude").value = latitude;
+          document.getElementById("longitude").value = longitude;
+        },
+        (err) => {
+          document.getElementById("alertaLocalizacao").textContent =
+            "Não foi possível capturar sua localização automaticamente. Preencha manualmente.";
+        }
+      );
+    } else {
+      document.getElementById("alertaLocalizacao").textContent =
+        "Seu navegador não suporta geolocalização. Preencha manualmente.";
+    }
+
+    // Funções do popup
+    function abrirPopup() {
+      document.getElementById("popupFoto").style.display = "flex";
+    }
+    function abrirSeletor() {
+      document.getElementById("popupFoto").style.display = "none";
+      document.getElementById("foto").click(); // abre seletor só depois do OK
+    }
+
+    // Pré-visualização da foto escolhida
+    document.getElementById("foto").addEventListener("change", function() {
+      const file = this.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          document.getElementById("previewFoto").innerHTML =
+            `<img src="${e.target.result}" alt="Pré-visualização da foto">`;
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    async function cadastrarPet(event) {
+      event.preventDefault();
+
+      const nome = document.getElementById("nome").value;
+      const tipo = document.getElementById("tipo").value;
+      const cor = document.getElementById("cor").value;
+      const contato = document.getElementById("contato").value;
+      const status = document.getElementById("status").value;
+      const fotoFile = document.getElementById("foto").files[0];
+
+      const lat = latitude || parseFloat(document.getElementById("latitude").value);
+      const lng = longitude || parseFloat(document.getElementById("longitude").value);
+
+      let fotoUrl = null;
+      if (fotoFile) {
+        const { data, error } = await supabaseClient.storage
+          .from("pets")
+          .upload(`fotos/${Date.now()}_${fotoFile.name}`, fotoFile);
+
+        if (error) {
+          alert("Erro ao enviar foto: " + error.message);
+          return;
+        }
+
+        fotoUrl = supabaseClient.storage.from("pets").getPublicUrl(data.path).data.publicUrl;
+      }
+
+      const { error: insertError } = await supabaseClient.from("pets").insert([
+        { nome, tipo, cor, contato, foto: fotoUrl, status, latitude: lat, longitude: lng }
+      ]);
+
+      if (insertError) {
+        alert("Erro ao cadastrar pet: " + insertError.message);
+      } else {
+        alert("Pet cadastrado com sucesso!");
+        window.location.href = "lista.html";
+      }
+    }
+
+    document.getElementById("formCadastro").addEventListener("submit", cadastrarPet);
+  </script>
+</body>
+</html>

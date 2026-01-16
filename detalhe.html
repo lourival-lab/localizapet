@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🔎 Detalhes do Pet</title>
+  <style>
+    body{font-family:Arial;background:#E8F5E9;margin:0;padding:0;}
+    header{background:#C8E6C9;color:#2E7D32;padding:15px;text-align:center;font-size:24px;font-weight:bold;}
+    nav{text-align:center;padding:10px;background:#2E7D32;}
+    nav a{color:white;margin:0 10px;text-decoration:none;font-weight:bold;}
+    .container{max-width:500px;margin:20px auto;padding:20px;background:#fff;border-radius:10px;box-shadow:0 2px 6px rgba(0,0,0,0.2);text-align:center;}
+    img{width:250px;height:250px;object-fit:cover;border-radius:8px;margin-bottom:15px;}
+    button.encontrado{margin-top:15px;padding:10px 15px;background:#388E3C;color:white;border:none;border-radius:5px;font-weight:bold;cursor:pointer;}
+    button.encontrado:hover{background:#2E7D32;}
+  </style>
+</head>
+<body>
+  <header>🔎 Detalhes do Pet</header>
+  <nav>
+    <a href="index.html">Início</a>
+    <a href="lista.html">Lista</a>
+    <a href="mapa.html">Mapa</a>
+  </nav>
+  <div class="container" id="detalhesPet"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    // Cliente Supabase
+    const supabaseClient = supabase.createClient("https://SEU-PROJETO.supabase.co","SUA-CHAVE-ANON");
+
+    // Pega o ID do pet pela URL
+    const id = new URLSearchParams(window.location.search).get("id");
+
+    async function carregarPet(){
+      const { data, error } = await supabaseClient.from("pets").select("*").eq("id", id).single();
+      if(error || !data){
+        detalhesPet.textContent = "Pet não encontrado.";
+        return;
+      }
+      const pet = data;
+      detalhesPet.innerHTML = `
+        <h2>${pet.nome}</h2>
+        <img src="${pet.foto}" alt="Foto de ${pet.nome}">
+        <p><b>Tipo:</b> ${pet.tipo}</p>
+        <p><b>Cor:</b> ${pet.cor}</p>
+        <p><b>Status:</b> ${pet.status === "encontrado" ? "✅ Encontrado" : "❌ Perdido"}</p>
+        <p><b>Contato:</b> ${pet.contato}</p>
+        <a href="https://www.openstreetmap.org/?mlat=${pet.latitude}&mlon=${pet.longitude}" target="_blank">📍 Ver no mapa</a><br>
+        ${pet.status === "perdido" ? `<button class="encontrado" onclick="marcarEncontrado(${pet.id})">✅ Marcar como Encontrado</button>` : ""}
+      `;
+    }
+
+    async function marcarEncontrado(petId){
+      const { error } = await supabaseClient.from("pets").update({ status: "encontrado" }).eq("id", petId);
+      if(error){
+        alert("Erro ao atualizar status.");
+      } else {
+        alert("Pet marcado como encontrado!");
+        carregarPet();
+      }
+    }
+
+    carregarPet();
+  </script>
+</body>
+</html>
