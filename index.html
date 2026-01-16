@@ -11,6 +11,19 @@
     nav{text-align:center;padding:10px;background:#2E7D32;}
     nav a{color:white;margin:0 10px;text-decoration:none;font-weight:bold;}
     #map{height:80vh;width:100%;}
+    .btn-detalhe{
+      display:inline-block;
+      margin-top:8px;
+      padding:6px 12px;
+      background:#2E7D32;
+      color:white;
+      text-decoration:none;
+      border-radius:4px;
+      font-weight:bold;
+    }
+    .btn-detalhe:hover{
+      background:#1B5E20;
+    }
   </style>
 </head>
 <body>
@@ -37,8 +50,11 @@
     );
 
     async function carregarPets() {
-      // Busca os pets em ordem de cadastro
-      const { data, error } = await supabaseClient.from("pets").select("*").order("id", { ascending: true });
+      const { data, error } = await supabaseClient
+        .from("pets")
+        .select("*")
+        .order("id", { ascending: true });
+
       if (error) { console.error("Erro ao carregar pets:", error); return; }
       if (!data || data.length === 0) { console.log("Nenhum pet cadastrado."); return; }
 
@@ -57,16 +73,17 @@
 
           const marker = L.marker([lat, lng], { icon }).addTo(map)
            .bindPopup(`
-  <h3>${pet.nome}</h3>
-  <img src="${pet.foto}" alt="Foto de ${pet.nome}"
-       style="width:150px;height:150px;object-fit:cover;border-radius:8px;margin:5px 0;">
-  <p><b>Status:</b> ${pet.status}</p>
-  <p><b>Contato:</b> ${pet.contato || "Não informado"}</p>
-`);
-          // Se for o último pet cadastrado, centraliza e abre o popup
+              <h3>${pet.nome}</h3>
+              <img src="${pet.foto}" alt="Foto de ${pet.nome}"
+                   style="width:150px;height:150px;object-fit:cover;border-radius:8px;margin:5px 0;">
+              <p><b>Status:</b> ${pet.status}</p>
+              <p><b>Contato:</b> ${pet.contato || "Não informado"}</p>
+              <a href="detalhe.html?id=${pet.id}" class="btn-detalhe">🔍 Ver detalhes</a>
+           `);
+
           if (pet.id === data[data.length - 1].id) {
-            map.setView([lat, lng], 14); // centraliza no último pet
-            marker.openPopup();          // abre o popup automaticamente
+            map.setView([lat, lng], 14);
+            marker.openPopup();
           }
         }
       });
