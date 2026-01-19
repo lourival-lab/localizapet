@@ -34,34 +34,21 @@
       text-align: center;
       padding: 40px 20px;
     }
-    .btn-add {
-      display: inline-block;
-      margin-top: 20px;
-      padding: 12px 20px;
-      background: #2E7D32;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      font-size: 18px;
-      font-weight: bold;
-      cursor: pointer;
-      text-decoration: none;
-    }
-    .btn-add:hover {
-      background: #1B5E20;
-    }
 
-    /* Botão flutuante */
+    /* Botão flutuante redondo com + */
     .botao-flutuante {
       position: fixed;
       bottom: 20px;
       right: 20px;
       background: #4CAF50; /* Verde vivo */
       color: white;
-      padding: 15px 25px;
-      border-radius: 30px;
-      font-size: 18px;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      font-size: 32px;
       font-weight: bold;
+      text-align: center;
+      line-height: 60px; /* Centraliza o + */
       text-decoration: none;
       box-shadow: 0 6px 10px rgba(0,0,0,0.4);
       transition: background 0.3s ease;
@@ -84,11 +71,9 @@
   <div class="container">
     <h2>Bem-vindo!</h2>
     <p>Nosso objetivo é ajudar pets perdidos a voltarem para casa 🐶🐱</p>
-    <!-- Botão para incluir novo pet -->
-    <a href="cadastro.html" class="btn-add">➕ Incluir Novo Pet</a>
   </div>
 
-  <!-- Botão flutuante -->
-  <a href="cadastro.html" class="botao-flutuante">Cadastro</a>
+  <!-- Botão flutuante com + -->
+  <a href="cadastro.html" class="botao-flutuante">+</a>
 </body>
 </html>
