@@ -1,69 +1,111 @@
-<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>
-  const supabaseClient = supabase.createClient(
-    "https://ijzkiooyisfdmbmdjmso.supabase.co",
-    "sb_publishable_OTMLQWCUsgMZSuRALOk--g_EVe657MT"
-  );
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🐾 LocalizaPet - Início</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+  <style>
+    body { font-family: Arial, sans-serif; background:#E8F5E9; margin:0; padding:0; }
+    header { background:#C8E6C9; color:#2E7D32; padding:15px; text-align:center; font-size:24px; font-weight:bold; }
+    nav { text-align:center; padding:10px; background:#2E7D32; }
+    nav a { color:white; margin:0 10px; text-decoration:none; font-weight:bold; }
+    .container { max-width:900px; margin:20px auto; background:#fff; padding:20px; border-radius:8px; box-shadow:0 2px 6px rgba(0,0,0,0.2); }
+    h2 { color:#2E7D32; }
+    .pet-card { border-bottom:1px solid #ddd; padding:10px 0; }
+    .pet-card img { width:120px; height:120px; object-fit:cover; border-radius:8px; margin-right:10px; }
+    .pet-info { display:flex; align-items:center; }
+    .btn-detalhe { display:inline-block; margin-top:8px; padding:6px 12px; background:#2E7D32; color:white; border:none; border-radius:4px; font-weight:bold; cursor:pointer; text-decoration:none; }
+    .btn-detalhe:hover { background:#1B5E20; }
+    #map { height: 400px; width: 100%; margin-top:20px; }
+  </style>
+</head>
+<body>
+  <header>🐾 LocalizaPet</header>
+  <nav>
+    <a href="index.html">Início</a>
+    <a href="cadastro.html">Cadastrar Pet</a>
+    <a href="lista.html">Lista de Pets</a>
+    <a href="mapa.html">Mapa</a>
+  </nav>
 
-  document.addEventListener("DOMContentLoaded", () => {
-    // Inicializa o mapa
-    const map = L.map('map').setView([-14.235, -51.9253], 4);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '© OpenStreetMap contributors'
-    }).addTo(map);
+  <div class="container">
+    <h2>Pets cadastrados recentemente</h2>
+    <div id="listaPets">
+      <p>Carregando pets...</p>
+    </div>
+    <!-- Mapa na página inicial -->
+    <div id="map"></div>
+  </div>
 
-    async function carregarPets() {
-      const { data, error } = await supabaseClient
-        .from("pets")
-        .select("*")
-        .order("id", { ascending: false })
-        .limit(5);
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    const supabaseClient = supabase.createClient(
+      "https://ijzkiooyisfdmbmdjmso.supabase.co",
+      "sb_publishable_OTMLQWCUsgMZSuRALOk--g_EVe657MT"
+    );
 
-      const lista = document.getElementById("listaPets");
+    document.addEventListener("DOMContentLoaded", () => {
+      // Inicializa o mapa
+      const map = L.map('map').setView([-14.235, -51.9253], 4);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+      }).addTo(map);
 
-      if (error) {
-        console.error("Erro ao carregar pets:", error);
-        lista.innerHTML = "<p>Erro ao carregar pets.</p>";
-        return;
-      }
+      async function carregarPets() {
+        const { data, error } = await supabaseClient
+          .from("pets")
+          .select("*")
+          .order("id", { ascending: false })
+          .limit(5);
 
-      if (!data || data.length === 0) {
-        lista.innerHTML = "<p>Nenhum pet cadastrado ainda.</p>";
-        return;
-      }
+        const lista = document.getElementById("listaPets");
 
-      lista.innerHTML = "";
-      data.forEach(pet => {
-        // Lista de pets
-        lista.innerHTML += `
-          <div class="pet-card">
-            <div class="pet-info">
-              <img src="${pet.foto}" alt="Foto de ${pet.nome}">
-              <div>
-                <p><b>${pet.nome}</b></p>
-                <p>Status: ${pet.status}</p>
-                <a class="btn-detalhe" href="detalhe.html?id=${pet.id}">🔍 Ver detalhes</a>
+        if (error) {
+          console.error("Erro ao carregar pets:", error);
+          lista.innerHTML = "<p>Erro ao carregar pets.</p>";
+          return;
+        }
+
+        if (!data || data.length === 0) {
+          lista.innerHTML = "<p>Nenhum pet cadastrado ainda.</p>";
+          return;
+        }
+
+        lista.innerHTML = "";
+        data.forEach(pet => {
+          // Lista de pets
+          lista.innerHTML += `
+            <div class="pet-card">
+              <div class="pet-info">
+                <img src="${pet.foto}" alt="Foto de ${pet.nome}">
+                <div>
+                  <p><b>${pet.nome}</b></p>
+                  <p>Status: ${pet.status}</p>
+                  <a class="btn-detalhe" href="detalhe.html?id=${pet.id}">🔍 Ver detalhes</a>
+                </div>
               </div>
             </div>
-          </div>
-        `;
+          `;
 
-        // Marcadores no mapa
-        const lat = parseFloat(pet.latitude);
-        const lng = parseFloat(pet.longitude);
-        if (!isNaN(lat) && !isNaN(lng)) {
-          L.marker([lat, lng]).addTo(map)
-            .bindPopup(`
-              <h3>${pet.nome}</h3>
-              <img src="${pet.foto}" style="width:150px;height:150px;object-fit:cover;border-radius:8px;">
-              <p><b>Status:</b> ${pet.status}</p>
-              <p><b>Contato:</b> ${pet.contato || "Não informado"}</p>
-            `);
-        }
-      });
-    }
+          // Marcadores no mapa
+          const lat = parseFloat(pet.latitude);
+          const lng = parseFloat(pet.longitude);
+          if (!isNaN(lat) && !isNaN(lng)) {
+            L.marker([lat, lng]).addTo(map)
+              .bindPopup(`
+                <h3>${pet.nome}</h3>
+                <img src="${pet.foto}" style="width:150px;height:150px;object-fit:cover;border-radius:8px;">
+                <p><b>Status:</b> ${pet.status}</p>
+                <p><b>Contato:</b> ${pet.contato || "Não informado"}</p>
+              `);
+          }
+        });
+      }
 
-    carregarPets();
-  });
-</script>
+      carregarPets();
+    });
+  </script>
+</body>
+</html>
