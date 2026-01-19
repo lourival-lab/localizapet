@@ -1,16 +1,53 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>🗺️ Mapa de Pets</title>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>🐾 Mapa de Pets</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
   <style>
-    body { margin:0; padding:0; }
-    #map { height:100vh; width:100%; }
+    body {
+      font-family: Arial, sans-serif;
+      background: #E8F5E9;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      background: #C8E6C9;
+      color: #2E7D32;
+      padding: 15px;
+      text-align: center;
+      font-size: 24px;
+      font-weight: bold;
+    }
+    nav {
+      text-align: center;
+      padding: 10px;
+      background: #2E7D32;
+    }
+    nav a {
+      color: white;
+      margin: 0 10px;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    #map {
+      height: 80vh;
+      width: 100%;
+    }
+    .pet-icon {
+      border-radius: 50%;
+      border: 2px solid #2E7D32;
+    }
   </style>
 </head>
 <body>
+  <header>🐾 Mapa de Pets Perdidos</header>
+  <nav>
+    <a href="index.html">Início</a>
+    <a href="lista.html">Lista</a>
+    <a href="mapa.html">Mapa</a>
+  </nav>
   <div id="map"></div>
 
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
@@ -21,30 +58,41 @@
       "sb_publishable_OTMLQWCUsgMZSuRALOk--g_EVe657MT"
     );
 
-    // Inicializa mapa
-    const map = L.map('map').setView([-27.0, -49.0], 10); // posição inicial aproximada
-
+    // Inicializa o mapa (ajuste coordenadas para sua região)
+    const map = L.map('map').setView([-27.0, -49.3], 10);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '© OpenStreetMap contributors'
+      attribution: '© OpenStreetMap'
     }).addTo(map);
 
     async function carregarPets() {
-      const { data: pets, error } = await supabaseClient.from("pets").select("*");
+      const { data: pets, error } = await supabaseClient
+        .from("pets")
+        .select("*");
+
       if (error) {
-        console.error("Erro ao carregar pets:", error);
+        console.error(error);
         return;
       }
 
       pets.forEach(pet => {
         if (pet.latitude && pet.longitude) {
-          L.marker([pet.latitude, pet.longitude]).addTo(map)
-            .bindPopup(`
-              <h3>${pet.nome}</h3>
-              ${pet.foto ? `<img src="${pet.foto}" alt="Foto de ${pet.nome}" 
-                   style="width:150px;height:150px;object-fit:cover;border-radius:8px;margin:5px 0;">` : ""}
-              <p><b>Status:</b> ${pet.status}</p>
-              <p><b>Contato:</b> ${pet.contato || "Não informado"}</p>
-            `);
+          // Ícone personalizado com miniatura do pet
+          const petIcon = L.icon({
+            iconUrl: pet.foto || 'img/pet-placeholder.png',
+            iconSize: [50, 50],
+            className: 'pet-icon'
+          });
+
+          const marker = L.marker([pet.latitude, pet.longitude], { icon: petIcon }).addTo(map);
+
+          // Popup com detalhes
+          marker.bindPopup(`
+            <b>${pet.nome}</b><br>
+            ${pet.tipo || "Não informado"}<br>
+            Status: ${pet.status}<br>
+            <img src="${pet.foto || 'img/pet-placeholder.png'}" width="100"><br>
+            <a href="detalhes.html?id=${pet.id}">Ver detalhes</a>
+          `);
         }
       });
     }
