@@ -40,8 +40,8 @@
       text-align: center;
     }
     img {
-      width: 250px;
-      height: 250px;
+      max-width: 100%;
+      height: auto;
       object-fit: cover;
       border-radius: 8px;
       margin-bottom: 15px;
@@ -58,6 +58,17 @@
     }
     button.encontrado:hover {
       background: #2E7D32;
+    }
+    .status {
+      font-size: 18px;
+      margin: 10px 0;
+    }
+    iframe {
+      width: 100%;
+      height: 300px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      margin-top: 15px;
     }
   </style>
 </head>
@@ -96,21 +107,23 @@
 
       if (error || !pet) {
         container.textContent = "❌ Pet não encontrado.";
+        console.error(error);
         return;
       }
 
       container.innerHTML = `
         <h2>${pet.nome}</h2>
-        <img src="${pet.foto}" alt="Foto de ${pet.nome}">
+        <img src="${pet.foto || 'img/pet-placeholder.png'}" alt="Foto de ${pet.nome}">
         <p><b>Tipo:</b> ${pet.tipo || "Não informado"}</p>
         <p><b>Cor:</b> ${pet.cor || "Não informado"}</p>
-        <p><b>Status:</b> ${pet.status === "encontrado" ? "✅ Encontrado" : "❌ Perdido"}</p>
+        <p class="status"><b>Status:</b> ${pet.status === "encontrado" ? "✅ Encontrado" : "❌ Perdido"}</p>
         <p><b>Contato:</b> ${pet.contato || "Não informado"}</p>
-        <a href="https://www.openstreetmap.org/?mlat=${pet.latitude}&mlon=${pet.longitude}" target="_blank">
-          📍 Ver no mapa
-        </a><br>
+        <iframe 
+          src="https://www.openstreetmap.org/export/embed.html?bbox=${pet.longitude-0.01},${pet.latitude-0.01},${pet.longitude+0.01},${pet.latitude+0.01}&layer=mapnik&marker=${pet.latitude},${pet.longitude}" 
+          aria-label="Mapa da localização do pet">
+        </iframe>
         ${pet.status === "perdido" ? `
-          <button class="encontrado" onclick="marcarEncontrado(${pet.id})">
+          <button class="encontrado" aria-label="Marcar como encontrado" onclick="marcarEncontrado(${pet.id})">
             ✅ Marcar como Encontrado
           </button>` : ""}
       `;
@@ -123,10 +136,14 @@
         .eq("id", id);
 
       if (error) {
-        alert("Erro ao atualizar status.");
+        console.error(error);
+        alert("Erro ao atualizar status: " + error.message);
       } else {
-        alert("Pet marcado como encontrado!");
-        carregarPet();
+        const container = document.getElementById("detalhesPet");
+        const statusEl = container.querySelector(".status");
+        if (statusEl) statusEl.innerHTML = "<b>Status:</b> ✅ Encontrado";
+        const btn = container.querySelector("button.encontrado");
+        if (btn) btn.remove();
       }
     }
 
@@ -134,3 +151,4 @@
   </script>
 </body>
 </html>
+
