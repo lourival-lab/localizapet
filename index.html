@@ -96,12 +96,14 @@
 
             L.marker([lat, lng], { icon: petIcon }).addTo(map)
               .bindPopup(`
-                <h3>${pet.nome}</h3>
-                <img src="${pet.foto}" alt="Foto de ${pet.nome}"
-                     style="max-width:200px; max-height:200px; object-fit:cover; border-radius:8px; margin:5px 0;">
-                <p><b>Status:</b> ${pet.status}</p>
-                <p><b>Contato:</b> ${pet.contato || "Não informado"}</p>
-                <a class="btn-detalhe" href="detalhe.html?id=${pet.id}">🔍 Ver detalhes</a>
+                <div style="text-align:center;">
+                  <h3>${pet.nome}</h3>
+                  <img src="${pet.foto}" alt="Foto de ${pet.nome}"
+                       style="max-width:200px; max-height:200px; object-fit:cover; border-radius:8px; margin:5px auto; display:block;">
+                  <p><b>Status:</b> ${pet.status}</p>
+                  <p><b>Contato:</b> ${pet.contato || "Não informado"}</p>
+                  <a class="btn-detalhe" href="detalhe.html?id=${pet.id}">🔍 Ver detalhes</a>
+                </div>
               `);
           }
         });
