@@ -41,7 +41,7 @@
       const { data, error } = await supabaseClient
         .from("pets")
         .select("*")
-        .eq("id", id)   // ✅ forma correta de filtrar
+        .eq("id", id)   // ✅ filtro correto
         .single();      // retorna apenas um registro
 
       const container = document.getElementById("detalhesPet");
