@@ -34,7 +34,7 @@
   </nav>
   <div id="map"></div>
 
-  <!-- Scripts externos DEVEM vir antes do código -->
+  <!-- Scripts externos -->
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
@@ -45,7 +45,7 @@
       attribution: '© OpenStreetMap contributors'
     }).addTo(map);
 
-    // 2. Inicializa o cliente Supabase (precisa vir ANTES da função)
+    // 2. Inicializa o cliente Supabase
     const supabaseClient = supabase.createClient(
       "https://ijzkiooyisfdmbmdjmso.supabase.co",
       "sb-publishable_OTMLQWCUsgMZSuRALOk--g_EVe657MT"
@@ -62,7 +62,10 @@
         return;
       }
 
-      console.log("Pets recebidos:", data);
+      if (!data || data.length === 0) {
+        console.log("Nenhum pet cadastrado.");
+        return;
+      }
 
       const bounds = [];
 
@@ -110,14 +113,18 @@
 
         const marker = L.marker([lat, lng], { icon }).addTo(map);
 
-        marker.bindPopup(`
+        // Conteúdo do popup
+        const popupContent = `
           <h3>${nome}</h3>
           <img src="${foto}" alt="Foto de ${nome}"
                style="width:150px;height:150px;object-fit:cover;border-radius:8px;margin:5px 0;">
           <p><b>Status:</b> ${pet.status || "Não informado"}</p>
           <p><b>Contato:</b> ${pet.contato || "Não informado"}</p>
           <a href="detalhe.html?id=${pet.id}" class="btn-detalhe">🔍 Ver detalhes</a>
-        `);
+        `;
+
+        // Popup abre ao clicar no marcador
+        marker.bindPopup(popupContent);
       });
 
       if (bounds.length > 0) {
