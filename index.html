@@ -4,12 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>🐾 LocalizaPet - Início</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
   <style>
     body { font-family: Arial, sans-serif; background:#E8F5E9; margin:0; padding:0; }
     header { background:#C8E6C9; color:#2E7D32; padding:15px; text-align:center; font-size:24px; font-weight:bold; }
     nav { text-align:center; padding:10px; background:#2E7D32; }
     nav a { color:white; margin:0 10px; text-decoration:none; font-weight:bold; }
-    .container { max-width:800px; margin:20px auto; background:#fff; padding:20px; border-radius:8px; box-shadow:0 2px 6px rgba(0,0,0,0.2); }
+    .container { max-width:900px; margin:20px auto; background:#fff; padding:20px; border-radius:8px; box-shadow:0 2px 6px rgba(0,0,0,0.2); }
     h2 { color:#2E7D32; }
     .pet-card { border-bottom:1px solid #ddd; padding:10px 0; }
     .pet-card img { width:120px; height:120px; object-fit:cover; border-radius:8px; margin-right:10px; }
@@ -84,11 +85,13 @@
 
     carregarPets();
 
-    // Inicializa o mapa com zoom ajustado
-    const map = L.map('map').setView([-14.235, -51.9253], 4);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '© OpenStreetMap contributors'
-    }).addTo(map);
+    // Inicializa o mapa somente depois que o DOM estiver pronto
+    document.addEventListener("DOMContentLoaded", () => {
+      const map = L.map('map').setView([-14.235, -51.9253], 4); // zoom ajustado
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+      }).addTo(map);
+    });
   </script>
 </body>
 </html>
