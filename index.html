@@ -58,10 +58,14 @@
       if (error) { console.error("Erro ao carregar pets:", error); return; }
       if (!data || data.length === 0) { console.log("Nenhum pet cadastrado."); return; }
 
+      const bounds = [];
+
       data.forEach(pet => {
         const lat = parseFloat(pet.latitude);
         const lng = parseFloat(pet.longitude);
         if (!isNaN(lat) && !isNaN(lng)) {
+          bounds.push([lat, lng]);
+
           const icon = L.icon({
             iconUrl: pet.status === "encontrado"
               ? "https://maps.google.com/mapfiles/ms/icons/green-dot.png"
@@ -81,12 +85,15 @@
               <a href="detalhe.html?id=${pet.id}" class="btn-detalhe">🔍 Ver detalhes</a>
            `);
 
-          if (pet.id === data[data.length - 1].id) {
-            map.setView([lat, lng], 14);
-            marker.openPopup();
-          }
+          // 👉 abre o popup automaticamente
+          marker.openPopup();
         }
       });
+
+      // Ajusta o zoom para mostrar todos os pets
+      if (bounds.length > 0) {
+        map.fitBounds(bounds);
+      }
     }
 
     carregarPets();
