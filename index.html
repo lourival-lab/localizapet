@@ -36,13 +36,15 @@
           <a href="detalhe.html?id=${pet.id}" class="btn-detalhe">🔍 Ver detalhes</a>
         `;
 
-        // cria popup independente e abre no mapa
-        const popup = L.popup({ closeButton: true })
-          .setLatLng([lat, lng])
-          .setContent(popupContent);
+        marker.bindPopup(popupContent);
 
-        map.addLayer(marker);
-        map.openPopup(popup);
+        // 👉 abre automaticamente apenas se o pet estiver perdido
+        if (pet.status === "perdido") {
+          const popup = L.popup({ closeButton: true, autoClose: false, closeOnClick: false })
+            .setLatLng([lat, lng])
+            .setContent(popupContent);
+          map.addLayer(popup);
+        }
       }
     });
 
