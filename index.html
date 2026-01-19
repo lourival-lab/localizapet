@@ -2,62 +2,31 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <title>Teste Supabase + Leaflet</title>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
-  <style>
-    #map { height: 80vh; width: 100%; }
-  </style>
+  <title>Teste Supabase</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
-  <h1>🐾 Teste Supabase + Leaflet</h1>
-  <div id="map"></div>
-
-  <!-- Leaflet -->
-  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-  <!-- Supabase -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
+  <h1>Teste Supabase</h1>
   <script>
-    // 👉 Inicializa o mapa
-    const map = L.map('map').setView([-14.235, -51.9253], 4);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '© OpenStreetMap contributors'
-    }).addTo(map);
-
-    // 👉 Inicializa o Supabase
     const supabaseClient = supabase.createClient(
-      "https://SEU-PROJETO.supabase.co",   // substitua pelo seu URL
-      "SUA-CHAVE-PUBLICA"                  // substitua pela sua chave pública
+      "https://SEU-PROJETO.supabase.co",
+      "SUA-CHAVE-PUBLICA"
     );
 
     async function carregarPets() {
-      try {
-        const { data, error } = await supabaseClient
-          .from("pets")
-          .select("*")
-          .limit(5); // pega só alguns para teste
+      const { data, error } = await supabaseClient
+        .from("pets")
+        .select("*")
+        .limit(3);
 
-        if (error) {
-          console.error("Erro Supabase:", error);
-          document.body.innerHTML += "<p style='color:red'>Erro Supabase: " + error.message + "</p>";
-          return;
-        }
-
-        console.log("Pets carregados:", data);
-        document.body.innerHTML += "<p>Pets carregados: " + data.length + "</p>";
-
-        // 👉 Exemplo: coloca marcadores simples
-        data.forEach(pet => {
-          if (pet.latitude && pet.longitude) {
-            L.marker([pet.latitude, pet.longitude])
-              .addTo(map)
-              .bindPopup(`<b>${pet.nome}</b><br>Status: ${pet.status}`);
-          }
-        });
-      } catch (e) {
-        console.error("Erro inesperado:", e);
-        document.body.innerHTML += "<p style='color:red'>Erro inesperado: " + e.message + "</p>";
+      if (error) {
+        console.error("Erro Supabase:", error);
+        document.body.innerHTML += "<p style='color:red'>Erro: " + error.message + "</p>";
+        return;
       }
+
+      document.body.innerHTML += "<p>Pets carregados: " + data.length + "</p>";
+      console.log("Pets:", data);
     }
 
     carregarPets();
