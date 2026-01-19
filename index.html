@@ -24,6 +24,22 @@
       text-decoration:none;
     }
     .btn-detalhe:hover { background:#1B5E20; }
+
+    /* estilo do marcador personalizado */
+    .custom-pet-icon {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      overflow: hidden;
+      box-shadow: 0 0 5px rgba(0,0,0,0.5);
+      border: 2px solid white;
+    }
+    .custom-pet-icon img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
   </style>
 </head>
 <body>
@@ -74,19 +90,8 @@
           if (!isNaN(lat) && !isNaN(lng)) {
             // marcador com foto redonda
             const petIcon = L.divIcon({
-              html: `
-                <div style="
-                  width:50px; height:50px;
-                  border-radius:50%;
-                  overflow:hidden;
-                  box-shadow:0 0 5px rgba(0,0,0,0.5);
-                  border:2px solid white;
-                ">
-                  <img src="${pet.foto}" alt="${pet.nome}"
-                       style="width:100%; height:100%; object-fit:cover;">
-                </div>
-              `,
-              className: "", 
+              html: `<div class="custom-pet-icon"><img src="${pet.foto}" alt="${pet.nome}"></div>`,
+              className: "", // evita estilos padrão do Leaflet
               iconSize: [50, 50],
               iconAnchor: [25, 50],
               popupAnchor: [0, -50]
