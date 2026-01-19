@@ -51,7 +51,7 @@
             <img src="${pet.foto}" alt="Foto de ${pet.nome}">
             <p><b>Tipo:</b> ${pet.tipo}</p>
             <p><b>Cor:</b> ${pet.cor}</p>
-            <p class="${pet.status === "encontrado" ? "status-encontrado" : "status-perdido"}">
+            <p class="${pet.status === "Encontrado" ? "status-Encontrado" : "status-Perdido"}">
               ${pet.status === "encontrado" ? "✅ Encontrado" : "❌ Perdido"}
             </p>
             <p><b>Contato:</b> ${pet.contato || "Não informado"}</p>
@@ -66,3 +66,4 @@
 </body>
 
 </html>
+
