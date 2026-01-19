@@ -11,18 +11,35 @@
     nav{text-align:center;padding:10px;background:#2E7D32;}
     nav a{color:white;margin:0 10px;text-decoration:none;font-weight:bold;}
     #map{height:80vh;width:100%;}
-    .btn-detalhe{
+    .btn-detalhe, .btn-status{
       display:inline-block;
       margin-top:8px;
       padding:6px 12px;
       background:#2E7D32;
       color:white;
-      text-decoration:none;
+      border:none;
       border-radius:4px;
       font-weight:bold;
+      cursor:pointer;
     }
-    .btn-detalhe:hover{
+    .btn-detalhe:hover, .btn-status:hover{
       background:#1B5E20;
+    }
+    .tooltip-pet {
+      display:flex;
+      align-items:center;
+    }
+    .tooltip-pet img {
+      width:40px;
+      height:40px;
+      object-fit:cover;
+      border-radius:50%;
+      margin-right:8px;
+      box-shadow:0 1px 4px rgba(0,0,0,0.3);
+    }
+    .tooltip-pet span {
+      font-weight:bold;
+      color:#2E7D32;
     }
   </style>
 </head>
@@ -58,10 +75,14 @@
       if (error) { console.error("Erro ao carregar pets:", error); return; }
       if (!data || data.length === 0) { console.log("Nenhum pet cadastrado."); return; }
 
+      const bounds = [];
+
       data.forEach(pet => {
         const lat = parseFloat(pet.latitude);
         const lng = parseFloat(pet.longitude);
         if (!isNaN(lat) && !isNaN(lng)) {
+          bounds.push([lat, lng]);
+
           const icon = L.icon({
             iconUrl: pet.status === "encontrado"
               ? "https://maps.google.com/mapfiles/ms/icons/green-dot.png"
@@ -71,26 +92,54 @@
             popupAnchor: [0, -32]
           });
 
-          const marker = L.marker([lat, lng], { icon }).addTo(map)
+          L.marker([lat, lng], { icon }).addTo(map)
            .bindPopup(`
               <h3>${pet.nome}</h3>
               <img src="${pet.foto}" alt="Foto de ${pet.nome}"
                    style="width:150px;height:150px;object-fit:cover;border-radius:8px;margin:5px 0;">
-              <p><b>Status:</b> ${pet.status}</p>
+              <p><b>Status:</b> <span id="status-${pet.id}">${pet.status}</span></p>
               <p><b>Contato:</b> ${pet.contato || "Não informado"}</p>
-              <a href="localizapet/detalhe.html?id=${pet.id}" class="btn-detalhe">🔍 Ver detalhes</a>
-           `);
-
-          if (pet.id === data[data.length - 1].id) {
-            map.setView([lat, lng], 14);
-            marker.openPopup();
-          }
+              <button class="btn-detalhe" onclick="window.location.href='detalhe.html?id=${pet.id}'">
+                🔍 Ver detalhes
+              </button>
+              <button class="btn-status" onclick="alterarStatus(${pet.id})">
+                ✅ Marcar como Encontrado
+              </button>
+           `)
+           .bindTooltip(
+             `<div class="tooltip-pet">
+                <img src="${pet.foto}" alt="Foto de ${pet.nome}">
+                <span>${pet.nome}</span>
+              </div>`,
+             { permanent: true, direction: "top" }
+           );
         }
       });
+
+      if (bounds.length > 0) {
+        map.fitBounds(bounds);
+      }
+    }
+
+    async function alterarStatus(id) {
+      const { error } = await supabaseClient
+        .from("pets")
+        .update({ status: "encontrado" })
+        .eq("id", id);
+
+      if (error) {
+        alert("Erro ao atualizar status: " + error.message);
+        return;
+      }
+
+      // Atualiza o texto no popup
+      const statusSpan = document.getElementById("status-" + id);
+      if (statusSpan) statusSpan.textContent = "encontrado";
+
+      alert("Status atualizado para ENCONTRADO!");
     }
 
     carregarPets();
   </script>
 </body>
 </html>
-
