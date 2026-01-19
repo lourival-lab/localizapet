@@ -55,7 +55,7 @@
   </style>
 </head>
 <body>
-  <header>📋 Cadastro de Pet</header>
+  <header>📋 CADASTRO DE PET</header>
   <nav>
     <a href="index.html">Início</a>
     <a href="lista.html">Lista de Pets</a>
@@ -86,8 +86,9 @@
 
     <label for="status">Status</label>
     <select id="status" required>
-      <option value="perdido">❌ Perdido</option>
-      <option value="encontrado">✅ Encontrado</option>
+      <option value="Perdido">❌ Perdido</option>
+      <option value="Encontrado">✅ Encontrado</option>
+      <option value="Visto">👀 Visto</option>
     </select>
 
     <label for="latitude">Latitude (caso não detectada)</label>
@@ -204,4 +205,5 @@
     document.getElementById("formCadastro").addEventListener("submit", cadastrarPet);
   </script>
 </body>
+
 </html>
