@@ -21,6 +21,7 @@
 <body>
   <header>🐾 LocalizaPet</header>
   <nav>
+    <!-- todos os links sem barra inicial -->
     <a href="index.html">Início</a>
     <a href="cadastro.html">Cadastrar Pet</a>
     <a href="lista.html">Lista de Pets</a>
@@ -70,7 +71,7 @@
               <div>
                 <p><b>${pet.nome}</b></p>
                 <p>Status: ${pet.status}</p>
-                <!-- Caminho absoluto para evitar repetição -->
+                <!-- link corrigido: sem barra inicial -->
                 <a class="btn-detalhe" href="detalhe.html?id=${pet.id}">🔍 Ver detalhes</a>
               </div>
             </div>
@@ -83,5 +84,3 @@
   </script>
 </body>
 </html>
-
-
