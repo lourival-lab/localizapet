@@ -54,7 +54,7 @@
       }
 
       // Verifica se já está encontrado
-      const statusBtn = data.status === "encontrado"
+      const statusBtn = data.status === "Encontrado"
         ? `<button class="btn-status" disabled>✅ Já marcado como Encontrado</button>`
         : `<button class="btn-status" onclick="alterarStatus(${data.id})">✅ Marcar como Encontrado</button>`;
 
@@ -74,7 +74,7 @@
     async function alterarStatus(id) {
       const { error } = await supabaseClient
         .from("pets")
-        .update({ status: "encontrado" })
+        .update({ status: "Encontrado" })
         .eq("id", id);
 
       if (error) {
@@ -82,7 +82,7 @@
         return;
       }
 
-      document.getElementById("statusPet").textContent = "encontrado";
+      document.getElementById("statusPet").textContent = "Encontrado";
       const btn = document.querySelector(".btn-status");
       btn.textContent = "✅ Já marcado como Encontrado";
       btn.disabled = true;
@@ -100,3 +100,4 @@
   </script>
 </body>
 </html>
+
