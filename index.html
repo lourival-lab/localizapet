@@ -22,6 +22,29 @@
       font-weight:bold;
     }
     .btn-detalhe:hover{background:#1B5E20;}
+
+    /* 👉 estilo dos tooltips permanentes (pets perdidos) */
+    .leaflet-tooltip.tooltip-pet {
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      padding: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+      color: #333;
+      font-size: 14px;
+      max-width: 220px;
+    }
+    .leaflet-tooltip.tooltip-pet h3 {
+      margin: 0 0 5px;
+      font-size: 16px;
+      color: #2E7D32;
+    }
+    .leaflet-tooltip.tooltip-pet img {
+      width: 100%;
+      height: auto;
+      border-radius: 6px;
+      margin-bottom: 5px;
+    }
   </style>
 </head>
 <body>
@@ -47,8 +70,6 @@
       "sb_publishable_OTMLQWCUsgMZSuRALOk--g_EVe657MT"
     );
 
-    let markers = [];
-
     async function carregarPets() {
       const { data, error } = await supabaseClient
         .from("pets")
@@ -58,10 +79,14 @@
       if (error) { console.error("Erro ao carregar pets:", error); return; }
       if (!data || data.length === 0) { console.log("Nenhum pet cadastrado."); return; }
 
+      const bounds = [];
+
       data.forEach(pet => {
         const lat = parseFloat(pet.latitude);
         const lng = parseFloat(pet.longitude);
         if (!isNaN(lat) && !isNaN(lng)) {
+          bounds.push([lat, lng]);
+
           const icon = L.icon({
             iconUrl: pet.status === "encontrado"
               ? "https://maps.google.com/mapfiles/ms/icons/green-dot.png"
@@ -73,7 +98,7 @@
 
           const marker = L.marker([lat, lng], { icon }).addTo(map);
 
-          const popupContent = `
+          const content = `
             <h3>${pet.nome}</h3>
             <img src="${pet.foto}" alt="Foto de ${pet.nome}"
                  style="width:150px;height:150px;object-fit:cover;border-radius:8px;margin:5px 0;">
@@ -82,15 +107,29 @@
             <a href="detalhe.html?id=${pet.id}" class="btn-detalhe">🔍 Ver detalhes</a>
           `;
 
-          marker.bindPopup(popupContent);
-          markers.push({ marker, pet });
+          // popup normal ao clicar (para todos)
+          marker.bindPopup(content);
+
+          // 👉 se for perdido, mostra também como "tooltip permanente"
+          if (pet.status === "perdido") {
+            marker.bindTooltip(content, {
+              permanent: true,
+              direction: "top",
+              offset: [0, -32],
+              className: "tooltip-pet"
+            });
+          }
         }
       });
+
+      if (bounds.length > 0) {
+        map.fitBounds(bounds);
+      }
     }
 
     carregarPets();
 
-    // 👉 Centraliza no usuário
+    // 👉 Centraliza no usuário ao abrir
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(pos => {
         const lat = pos.coords.latitude;
@@ -98,20 +137,6 @@
         map.setView([lat, lng], 14);
       });
     }
-
-    // 👉 Abre popups automaticamente conforme navega
-    map.on("moveend", () => {
-      const bounds = map.getBounds();
-      markers.forEach(({ marker, pet }) => {
-        if (bounds.contains(marker.getLatLng())) {
-          if (pet.status === "perdido") {
-            marker.openPopup();
-          }
-        } else {
-          marker.closePopup();
-        }
-      });
-    });
   </script>
 </body>
 </html>
