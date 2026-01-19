@@ -1,173 +1,77 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>🔎 Detalhes do Pet</title>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🐾 Detalhes do Pet</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #E8F5E9;
-      margin: 0;
-      padding: 0;
-    }
-    header {
-      background: #C8E6C9;
-      color: #2E7D32;
-      padding: 15px;
-      text-align: center;
-      font-size: 24px;
-      font-weight: bold;
-    }
-    nav {
-      text-align: center;
-      padding: 10px;
-      background: #2E7D32;
-    }
-    nav a {
-      color: white;
-      margin: 0 10px;
-      text-decoration: none;
-      font-weight: bold;
-    }
-    .container {
-      max-width: 500px;
-      margin: 20px auto;
-      padding: 20px;
-      background: #fff;
-      border-radius: 10px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-      text-align: center;
-    }
-    img {
-      max-width: 100%;
-      height: auto;
-      object-fit: cover;
-      border-radius: 8px;
-      margin-bottom: 15px;
-    }
-    button.encontrado {
-      margin-top: 15px;
-      padding: 10px 15px;
-      background: #388E3C;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      font-weight: bold;
-      cursor: pointer;
-    }
-    button.encontrado:hover {
-      background: #2E7D32;
-    }
-    .status {
-      font-size: 18px;
-      margin: 10px 0;
-    }
-    #map {
-      width: 100%;
-      height: 300px;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      margin-top: 15px;
-    }
+    body { font-family: Arial, sans-serif; background:#E8F5E9; margin:0; padding:0; }
+    header { background:#C8E6C9; color:#2E7D32; padding:15px; text-align:center; font-size:24px; font-weight:bold; }
+    nav { text-align:center; padding:10px; background:#2E7D32; }
+    nav a { color:white; margin:0 10px; text-decoration:none; font-weight:bold; }
+    .container { max-width:600px; margin:20px auto; background:#fff; padding:20px; border-radius:8px; box-shadow:0 2px 6px rgba(0,0,0,0.2); }
+    img { max-width:100%; border-radius:8px; margin:10px 0; }
+    h2 { color:#2E7D32; margin-top:0; }
+    p { font-size:16px; margin:5px 0; }
+    .voltar { display:inline-block; margin-top:15px; padding:8px 16px; background:#2E7D32; color:white; text-decoration:none; border-radius:4px; font-weight:bold; }
+    .voltar:hover { background:#1B5E20; }
   </style>
 </head>
 <body>
-  <header>🔎 Detalhes do Pet</header>
+  <header>🐾 Detalhes do Pet</header>
   <nav>
     <a href="index.html">Início</a>
-    <a href="lista.html">Lista</a>
+    <a href="cadastro.html">Cadastrar Pet</a>
+    <a href="lista.html">Lista de Pets</a>
     <a href="mapa.html">Mapa</a>
   </nav>
-  <div class="container" id="detalhesPet">Carregando informações do pet...</div>
-  <div id="map"></div>
 
-  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <div class="container" id="detalhesPet">
+    <p>Carregando informações do pet...</p>
+  </div>
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
     const supabaseClient = supabase.createClient(
       "https://ijzkiooyisfdmbmdjmso.supabase.co",
-      "sb-publishable_OTMLQWCUsgMZSuRALOk--g_EVe657MT"
+      "sb_publishable_OTMLQWCUsgMZSuRALOk--g_EVe657MT"
     );
 
-    const idParam = new URLSearchParams(window.location.search).get("id");
-    const petId = parseInt(idParam);
-
-    async function carregarPet() {
-      const container = document.getElementById("detalhesPet");
-
-      if (!petId || isNaN(petId)) {
-        container.textContent = "❌ ID inválido na URL.";
-        return;
-      }
-
-      const { data: pet, error } = await supabaseClient
+    async function carregarPet(id) {
+      const { data, error } = await supabaseClient
         .from("pets")
         .select("*")
-        .eq("id", petId)
-        .single();
+        .eq("id", id)   // ✅ forma correta de filtrar
+        .single();      // retorna apenas um registro
 
-      if (error || !pet) {
-        container.textContent = "❌ Pet não encontrado.";
-        console.error(error);
+      const container = document.getElementById("detalhesPet");
+
+      if (error) {
+        console.error("Erro ao carregar pet:", error);
+        container.innerHTML = "<p>Erro ao carregar informações do pet.</p>";
         return;
       }
 
       container.innerHTML = `
-        <h2>${pet.nome}</h2>
-        <img src="${pet.foto || 'img/pet-placeholder.png'}" alt="Foto de ${pet.nome}">
-        <p><b>Tipo:</b> ${pet.tipo || "Não informado"}</p>
-        <p><b>Cor:</b> ${pet.cor || "Não informado"}</p>
-        <p class="status"><b>Status:</b> ${pet.status === "encontrado" ? "✅ Encontrado" : "❌ Perdido"}</p>
-        <p><b>Contato:</b> ${pet.contato || "Não informado"}</p>
-        ${pet.status === "perdido" ? `
-          <button class="encontrado" aria-label="Marcar como encontrado" onclick="marcarEncontrado(${pet.id})">
-            ✅ Marcar como Encontrado
-          </button>` : ""}
+        <h2>${data.nome}</h2>
+        <img src="${data.foto}" alt="Foto de ${data.nome}">
+        <p><b>Tipo:</b> ${data.tipo}</p>
+        <p><b>Cor:</b> ${data.cor}</p>
+        <p><b>Status:</b> ${data.status}</p>
+        <p><b>Contato:</b> ${data.contato || "Não informado"}</p>
+        <p><b>Localização:</b> ${data.latitude}, ${data.longitude}</p>
+        <a href="mapa.html" class="voltar">⬅ Voltar ao mapa</a>
       `;
-
-      // Inicializa o mapa Leaflet
-      if (pet.latitude && pet.longitude) {
-        const map = L.map('map').setView([pet.latitude, pet.longitude], 15);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-          attribution: '© OpenStreetMap contributors'
-        }).addTo(map);
-
-        const borderColor = pet.status === "encontrado" ? "green" : "red";
-        const iconHtml = `
-          <div style="width:40px;height:40px;border-radius:50%;overflow:hidden;border:3px solid ${borderColor};">
-            <img src="${pet.foto || 'img/pet-placeholder.png'}" style="width:100%;height:100%;object-fit:cover;">
-          </div>
-        `;
-        const icon = L.divIcon({ html: iconHtml, className: "custom-pet-icon", iconSize: [40, 40] });
-
-        L.marker([pet.latitude, pet.longitude], { icon }).addTo(map)
-          .bindPopup(`<b>${pet.nome}</b><br>Status: ${pet.status}`);
-      } else {
-        document.getElementById("map").innerHTML = "<p>📍 Localização não informada</p>";
-      }
     }
 
-    async function marcarEncontrado(id) {
-      const { error } = await supabaseClient
-        .from("pets")
-        .update({ status: "encontrado" })
-        .eq("id", id);
-
-      if (error) {
-        console.error(error);
-        alert("Erro ao atualizar status: " + error.message);
-      } else {
-        const container = document.getElementById("detalhesPet");
-        const statusEl = container.querySelector(".status");
-        if (statusEl) statusEl.innerHTML = "<b>Status:</b> ✅ Encontrado";
-        const btn = container.querySelector("button.encontrado");
-        if (btn) btn.remove();
-      }
+    // Pega o id da URL
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get("id");
+    if (id) {
+      carregarPet(id);
+    } else {
+      document.getElementById("detalhesPet").innerHTML = "<p>ID do pet não informado.</p>";
     }
-
-    carregarPet();
   </script>
 </body>
 </html>
