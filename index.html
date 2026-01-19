@@ -88,7 +88,7 @@
             // marcador com miniatura
             const petIcon = L.divIcon({
               html: `<img src="${pet.foto}" alt="${pet.nome}">`,
-              className: "", // remove classes padrão
+              className: "", 
               iconSize: [50, 50],
               iconAnchor: [25, 50],
               popupAnchor: [0, -50]
@@ -98,7 +98,7 @@
               .bindPopup(`
                 <h3>${pet.nome}</h3>
                 <img src="${pet.foto}" alt="Foto de ${pet.nome}"
-                     style="width:200px;height:200px;object-fit:cover;border-radius:8px;margin:5px 0;">
+                     style="max-width:200px; max-height:200px; object-fit:cover; border-radius:8px; margin:5px 0;">
                 <p><b>Status:</b> ${pet.status}</p>
                 <p><b>Contato:</b> ${pet.contato || "Não informado"}</p>
                 <a class="btn-detalhe" href="detalhe.html?id=${pet.id}">🔍 Ver detalhes</a>
