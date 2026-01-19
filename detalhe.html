@@ -13,8 +13,8 @@
     img { max-width:100%; border-radius:8px; margin:10px 0; }
     h2 { color:#2E7D32; margin-top:0; }
     p { font-size:16px; margin:5px 0; }
-    .voltar { display:inline-block; margin-top:15px; padding:8px 16px; background:#2E7D32; color:white; text-decoration:none; border-radius:4px; font-weight:bold; }
-    .voltar:hover { background:#1B5E20; }
+    .voltar, .btn-status { display:inline-block; margin-top:15px; padding:8px 16px; background:#2E7D32; color:white; text-decoration:none; border:none; border-radius:4px; font-weight:bold; cursor:pointer; }
+    .voltar:hover, .btn-status:hover { background:#1B5E20; }
   </style>
 </head>
 <body>
@@ -41,8 +41,8 @@
       const { data, error } = await supabaseClient
         .from("pets")
         .select("*")
-        .eq("id", id)   // ✅ filtro correto
-        .single();      // retorna apenas um registro
+        .eq("id", id)
+        .single();
 
       const container = document.getElementById("detalhesPet");
 
@@ -57,11 +57,27 @@
         <img src="${data.foto}" alt="Foto de ${data.nome}">
         <p><b>Tipo:</b> ${data.tipo}</p>
         <p><b>Cor:</b> ${data.cor}</p>
-        <p><b>Status:</b> ${data.status}</p>
+        <p><b>Status:</b> <span id="statusPet">${data.status}</span></p>
         <p><b>Contato:</b> ${data.contato || "Não informado"}</p>
         <p><b>Localização:</b> ${data.latitude}, ${data.longitude}</p>
+        <button class="btn-status" onclick="alterarStatus(${data.id})">✅ Marcar como Encontrado</button>
         <a href="mapa.html" class="voltar">⬅ Voltar ao mapa</a>
       `;
+    }
+
+    async function alterarStatus(id) {
+      const { error } = await supabaseClient
+        .from("pets")
+        .update({ status: "encontrado" })
+        .eq("id", id);
+
+      if (error) {
+        alert("Erro ao atualizar status: " + error.message);
+        return;
+      }
+
+      document.getElementById("statusPet").textContent = "encontrado";
+      alert("Status atualizado para ENCONTRADO!");
     }
 
     // Pega o id da URL
