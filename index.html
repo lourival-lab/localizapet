@@ -11,7 +11,7 @@
     nav{text-align:center;padding:10px;background:#2E7D32;}
     nav a{color:white;margin:0 10px;text-decoration:none;font-weight:bold;}
     #map{height:80vh;width:100%;}
-    .btn-detalhe{
+    .btn-detalhe, .btn-status{
       display:inline-block;
       margin-top:8px;
       padding:6px 12px;
@@ -22,25 +22,13 @@
       font-weight:bold;
       cursor:pointer;
     }
-    .btn-detalhe:hover{
-      background:#1B5E20;
-    }
-    .tooltip-pet {
-      display:flex;
-      align-items:center;
-    }
+    .btn-detalhe:hover, .btn-status:hover{ background:#1B5E20; }
+    .tooltip-pet { display:flex; align-items:center; }
     .tooltip-pet img {
-      width:40px;
-      height:40px;
-      object-fit:cover;
-      border-radius:50%;
-      margin-right:8px;
-      box-shadow:0 1px 4px rgba(0,0,0,0.3);
+      width:40px; height:40px; object-fit:cover; border-radius:50%;
+      margin-right:8px; box-shadow:0 1px 4px rgba(0,0,0,0.3);
     }
-    .tooltip-pet span {
-      font-weight:bold;
-      color:#2E7D32;
-    }
+    .tooltip-pet span { font-weight:bold; color:#2E7D32; }
   </style>
 </head>
 <body>
@@ -99,8 +87,11 @@
                    style="width:150px;height:150px;object-fit:cover;border-radius:8px;margin:5px 0;">
               <p><b>Status:</b> ${pet.status}</p>
               <p><b>Contato:</b> ${pet.contato || "Não informado"}</p>
-              <button class="btn-detalhe" onclick="window.location.href='detalhe.html?id=${pet.id}'">
+              <button class="btn-detalhe" onclick="abrirDetalhe(${pet.id})">
                 🔍 Ver detalhes
+              </button>
+              <button class="btn-status" onclick="alterarStatus(${pet.id})">
+                ✅ Marcar como Encontrado
               </button>
            `)
            .bindTooltip(
@@ -116,6 +107,26 @@
       if (bounds.length > 0) {
         map.fitBounds(bounds);
       }
+    }
+
+    // Função para abrir detalhe
+    function abrirDetalhe(id) {
+      window.location.href = `detalhe.html?id=${encodeURIComponent(id)}`;
+    }
+
+    // Função para alterar status
+    async function alterarStatus(id) {
+      const { error } = await supabaseClient
+        .from("pets")
+        .update({ status: "encontrado" })
+        .eq("id", id);
+
+      if (error) {
+        alert("Erro ao atualizar status: " + error.message);
+        return;
+      }
+
+      alert("Status atualizado para ENCONTRADO!");
     }
 
     carregarPets();
