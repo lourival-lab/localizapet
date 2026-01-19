@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>🐾 Localizapet - Início</title>
+  <title>🐾 LocalizaPet - Início</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
   <style>
     body { font-family: Arial, sans-serif; background:#E8F5E9; margin:0; padding:0; }
@@ -15,7 +15,7 @@
       display:inline-block;
       margin-top:8px;
       padding:6px 12px;
-      background:#FFFFFF;
+      background:#2E7D32;
       color:white;
       border:none;
       border-radius:4px;
@@ -23,32 +23,38 @@
       cursor:pointer;
       text-decoration:none;
     }
-    .btn-detalhe:hover { background:#FFFFFF; }
+    .btn-detalhe:hover { background:#1B5E20; }
 
-    /* estilo do marcador personalizado */
-  .custom-pet-icon {
-    width: 200px;
-    height: 200px;
-    border-radius: 50%;
-    overflow: hidden;
-    box-shadow: 0 0 5px rgba(0,0,0,0.5);
-    border: 2px solid white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-
+    /* marcador redondo */
+    .custom-pet-icon {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      overflow: hidden;
+      box-shadow: 0 0 5px rgba(0,0,0,0.5);
+      border: 2px solid white;
+    }
     .custom-pet-icon img {
       width: 100%;
       height: 100%;
       object-fit: cover;
       display: block;
     }
+
+    /* foto circular no popup */
+    .popup-photo {
+      width: 200px;
+      height: 200px;
+      border-radius: 50%;
+      object-fit: cover;
+      display: block;
+      margin: 10px auto;
+      box-shadow: 0 0 8px rgba(0,0,0,0.3);
+    }
   </style>
 </head>
 <body>
-  <header>🐶 LOCALIZAPET 🐱</header>
+  <header>🐾 LocalizaPet</header>
   <nav>
     <a href="index.html">Início</a>
     <a href="cadastro.html">Cadastrar Pet</a>
@@ -96,7 +102,7 @@
             // marcador com foto redonda
             const petIcon = L.divIcon({
               html: `<div class="custom-pet-icon"><img src="${pet.foto}" alt="${pet.nome}"></div>`,
-              className: "", // evita estilos padrão do Leaflet
+              className: "", 
               iconSize: [50, 50],
               iconAnchor: [25, 50],
               popupAnchor: [0, -50]
@@ -106,8 +112,7 @@
               .bindPopup(`
                 <div style="text-align:center;">
                   <h3>${pet.nome}</h3>
-                  <img src="${pet.foto}" alt="Foto de ${pet.nome}"
-                       style="max-width:200px; max-height:200px; object-fit:cover; border-radius:8px; margin:5px auto; display:block;">
+                  <img src="${pet.foto}" alt="Foto de ${pet.nome}" class="popup-photo">
                   <p><b>Status:</b> ${pet.status}</p>
                   <p><b>Contato:</b> ${pet.contato || "Não informado"}</p>
                   <a class="btn-detalhe" href="detalhe.html?id=${pet.id}">🔍 Ver detalhes</a>
@@ -122,8 +127,3 @@
   </script>
 </body>
 </html>
-
-
-
-
-
