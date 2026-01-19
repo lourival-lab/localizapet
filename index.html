@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>🐾 Ajude um Pet Perdido</title>
+  <title>🐾 Mapa de Pets</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -30,63 +31,72 @@
       text-decoration: none;
       font-weight: bold;
     }
-    .container {
-      text-align: center;
-      padding: 40px 20px;
+    #map {
+      height: 80vh;
+      width: 100%;
     }
-    .btn-add {
-      display: inline-block;
-      margin-top: 20px;
-      padding: 12px 20px;
-      background: #2E7D32;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      font-size: 18px;
-      font-weight: bold;
-      cursor: pointer;
-      text-decoration: none;
-    }
-    .btn-add:hover {
-      background: #1B5E20;
-    }
-
-    /* Botão flutuante */
-    .botao-flutuante {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      background: #4CAF50; /* Verde mais vivo */
-      color: white;
-      padding: 18px;
+    .pet-icon {
       border-radius: 50%;
-      font-size: 24px;
-      text-align: center;
-      text-decoration: none;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-      transition: background 0.3s ease;
-    }
-    .botao-flutuante:hover {
-      background: #2E7D32;
+      border: 2px solid #2E7D32;
     }
   </style>
 </head>
 <body>
-  <header>🐾 Ajude um Pet Perdido</header>
+  <header>🐾 Mapa de Pets Perdidos</header>
   <nav>
     <a href="index.html">Início</a>
     <a href="lista.html">Lista</a>
     <a href="mapa.html">Mapa</a>
   </nav>
+  <div id="map"></div>
 
-  <div class="container">
-    <h2>Bem-vindo!</h2>
-    <p>Nosso objetivo é ajudar pets perdidos a voltarem para casa 🐶🐱</p>
-    <!-- Botão para incluir novo pet -->
-    <a href="cadastro.html" class="btn-add">➕ Incluir Novo Pet</a>
-  </div>
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    const supabaseClient = supabase.createClient(
+      "https://ijzkiooyisfdmbmdjmso.supabase.co",
+      "sb_publishable_OTMLQWCUsgMZSuRALOk--g_EVe657MT"
+    );
 
-  <!-- Botão flutuante -->
-  <a href="cadastro.html" class="botao-flutuante">➕</a>
+    const map = L.map('map').setView([-27.0, -49.3], 10); // ajuste para sua região
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap'
+    }).addTo(map);
+
+    async function carregarPets() {
+      const { data: pets, error } = await supabaseClient
+        .from("pets")
+        .select("*");
+
+      if (error) {
+        console.error(error);
+        return;
+      }
+
+      pets.forEach(pet => {
+        if (pet.latitude && pet.longitude) {
+          // Criar ícone com miniatura
+          const petIcon = L.icon({
+            iconUrl: pet.foto || 'img/pet-placeholder.png',
+            iconSize: [50, 50],
+            className: 'pet-icon'
+          });
+
+          const marker = L.marker([pet.latitude, pet.longitude], { icon: petIcon }).addTo(map);
+
+          marker.bindPopup(`
+            <b>${pet.nome}</b><br>
+            ${pet.tipo || "Não informado"}<br>
+            Status: ${pet.status}<br>
+            <img src="${pet.foto || 'img/pet-placeholder.png'}" width="100">
+            <br><a href="detalhe.html?id=${pet.id}">Ver detalhes</a>
+          `);
+        }
+      });
+    }
+
+    carregarPets();
+  </script>
 </body>
 </html>
+
