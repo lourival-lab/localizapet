@@ -15,6 +15,7 @@
     p { font-size:16px; margin:5px 0; }
     .voltar, .btn-status { display:inline-block; margin-top:15px; padding:8px 16px; background:#2E7D32; color:white; text-decoration:none; border:none; border-radius:4px; font-weight:bold; cursor:pointer; }
     .voltar:hover, .btn-status:hover { background:#1B5E20; }
+    .btn-status[disabled] { background:#9E9E9E; cursor:not-allowed; }
   </style>
 </head>
 <body>
@@ -52,6 +53,11 @@
         return;
       }
 
+      // Verifica se já está encontrado
+      const statusBtn = data.status === "encontrado"
+        ? `<button class="btn-status" disabled>✅ Já marcado como Encontrado</button>`
+        : `<button class="btn-status" onclick="alterarStatus(${data.id})">✅ Marcar como Encontrado</button>`;
+
       container.innerHTML = `
         <h2>${data.nome}</h2>
         <img src="${data.foto}" alt="Foto de ${data.nome}">
@@ -60,7 +66,7 @@
         <p><b>Status:</b> <span id="statusPet">${data.status}</span></p>
         <p><b>Contato:</b> ${data.contato || "Não informado"}</p>
         <p><b>Localização:</b> ${data.latitude}, ${data.longitude}</p>
-        <button class="btn-status" onclick="alterarStatus(${data.id})">✅ Marcar como Encontrado</button>
+        ${statusBtn}
         <a href="mapa.html" class="voltar">⬅ Voltar ao mapa</a>
       `;
     }
@@ -77,6 +83,9 @@
       }
 
       document.getElementById("statusPet").textContent = "encontrado";
+      const btn = document.querySelector(".btn-status");
+      btn.textContent = "✅ Já marcado como Encontrado";
+      btn.disabled = true;
       alert("Status atualizado para ENCONTRADO!");
     }
 
