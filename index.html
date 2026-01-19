@@ -34,24 +34,22 @@
       text-align: center;
       padding: 40px 20px;
     }
-    .botao-flutuante {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  background: #4CAF50; /* Verde vivo */
-  color: white;
-  padding: 15px 25px;
-  border-radius: 30px;
-  font-size: 18px;
-  font-weight: bold;
-  text-decoration: none;
-  box-shadow: 0 6px 10px rgba(0,0,0,0.4);
-  transition: background 0.3s ease;
-  z-index: 999; /* Garante que fique por cima */
-}
-.botao-flutuante:hover {
-  background: #2E7D32;
-}
+    .btn-add {
+      display: inline-block;
+      margin-top: 20px;
+      padding: 12px 20px;
+      background: #2E7D32;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 18px;
+      font-weight: bold;
+      cursor: pointer;
+      text-decoration: none;
+    }
+    .btn-add:hover {
+      background: #1B5E20;
+    }
 
     /* Botão flutuante */
     .botao-flutuante {
@@ -79,7 +77,7 @@
   <nav>
     <a href="index.html">Início</a>
     <a href="lista.html">Lista</a>
-    <a href="cadastro.html">Cadastar Pet</a>
+    <a href="cadastro.html">Cadastrar Pet</a>
     <a href="mapa.html">Mapa</a>
   </nav>
 
@@ -90,9 +88,7 @@
     <a href="cadastro.html" class="btn-add">➕ Incluir Novo Pet</a>
   </div>
 
- <!-- Botão flutuante -->
-<a href="cadastro.html" class="botao-flutuante">Cadastro</a>
-
+  <!-- Botão flutuante -->
+  <a href="cadastro.html" class="botao-flutuante">Cadastro</a>
 </body>
 </html>
-
