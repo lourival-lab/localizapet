@@ -20,6 +20,7 @@
       text-decoration:none;
       border-radius:4px;
       font-weight:bold;
+      cursor:pointer;
     }
     .btn-detalhe:hover{
       background:#1B5E20;
@@ -58,10 +59,14 @@
       if (error) { console.error("Erro ao carregar pets:", error); return; }
       if (!data || data.length === 0) { console.log("Nenhum pet cadastrado."); return; }
 
+      const bounds = [];
+
       data.forEach(pet => {
         const lat = parseFloat(pet.latitude);
         const lng = parseFloat(pet.longitude);
         if (!isNaN(lat) && !isNaN(lng)) {
+          bounds.push([lat, lng]);
+
           const icon = L.icon({
             iconUrl: pet.status === "encontrado"
               ? "https://maps.google.com/mapfiles/ms/icons/green-dot.png"
@@ -78,15 +83,16 @@
                    style="width:150px;height:150px;object-fit:cover;border-radius:8px;margin:5px 0;">
               <p><b>Status:</b> ${pet.status}</p>
               <p><b>Contato:</b> ${pet.contato || "Não informado"}</p>
-              <a href="detalhe.html?id=${pet.id}" class="btn-detalhe">🔍 Ver detalhes</a>
+              <button class="btn-detalhe" onclick="window.location.href='detalhe.html?id=${pet.id}'">
+                🔍 Ver detalhes
+              </button>
            `);
-
-          if (pet.id === data[data.length - 1].id) {
-            map.setView([lat, lng], 14);
-            marker.openPopup();
-          }
         }
       });
+
+      if (bounds.length > 0) {
+        map.fitBounds(bounds);
+      }
     }
 
     carregarPets();
