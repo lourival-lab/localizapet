@@ -16,6 +16,7 @@
     .pet-info { display:flex; align-items:center; }
     .btn-detalhe { display:inline-block; margin-top:8px; padding:6px 12px; background:#2E7D32; color:white; border:none; border-radius:4px; font-weight:bold; cursor:pointer; text-decoration:none; }
     .btn-detalhe:hover { background:#1B5E20; }
+    #map { height: 400px; width: 100%; margin-top:20px; }
   </style>
 </head>
 <body>
@@ -32,8 +33,11 @@
     <div id="listaPets">
       <p>Carregando pets...</p>
     </div>
+    <!-- Mapa na página inicial -->
+    <div id="map"></div>
   </div>
 
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
     const supabaseClient = supabase.createClient(
@@ -79,6 +83,12 @@
     }
 
     carregarPets();
+
+    // Inicializa o mapa com zoom ajustado
+    const map = L.map('map').setView([-14.235, -51.9253], 4);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
   </script>
 </body>
 </html>
