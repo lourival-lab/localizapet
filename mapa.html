@@ -35,7 +35,7 @@
       height: 80vh;
       width: 100%;
     }
-    .pet-icon {
+    .leaflet-marker-icon {
       border-radius: 50%;
       border: 2px solid #2E7D32;
     }
@@ -58,7 +58,6 @@
       "sb_publishable_OTMLQWCUsgMZSuRALOk--g_EVe657MT"
     );
 
-    // Inicializa o mapa (ajuste coordenadas para sua região)
     const map = L.map('map').setView([-27.0, -49.3], 10);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '© OpenStreetMap'
@@ -76,21 +75,24 @@
 
       pets.forEach(pet => {
         if (pet.latitude && pet.longitude) {
-          // Ícone personalizado com miniatura do pet
+          // garantir que a foto seja uma URL válida
+          const fotoUrl = pet.foto && pet.foto.startsWith("http")
+            ? pet.foto
+            : "img/pet-placeholder.png";
+
           const petIcon = L.icon({
-            iconUrl: pet.foto || 'img/pet-placeholder.png',
+            iconUrl: fotoUrl,
             iconSize: [50, 50],
             className: 'pet-icon'
           });
 
           const marker = L.marker([pet.latitude, pet.longitude], { icon: petIcon }).addTo(map);
 
-          // Popup com detalhes
           marker.bindPopup(`
             <b>${pet.nome}</b><br>
             ${pet.tipo || "Não informado"}<br>
             Status: ${pet.status}<br>
-            <img src="${pet.foto || 'img/pet-placeholder.png'}" width="100"><br>
+            <img src="${fotoUrl}" width="100"><br>
             <a href="detalhes.html?id=${pet.id}">Ver detalhes</a>
           `);
         }
