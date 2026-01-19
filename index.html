@@ -1,142 +1,49 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>🐾 Ajude um Pet Perdido</title>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
-  <style>
-    body{margin:0;padding:0;font-family:Arial;background:#E8F5E9;}
-    header{background:#C8E6C9;color:#2E7D32;padding:15px;text-align:center;font-size:24px;font-weight:bold;}
-    nav{text-align:center;padding:10px;background:#2E7D32;}
-    nav a{color:white;margin:0 10px;text-decoration:none;font-weight:bold;}
-    #map{height:80vh;width:100%;}
-    .btn-detalhe{
-      display:inline-block;
-      margin-top:8px;
-      padding:6px 12px;
-      background:#2E7D32;
-      color:white;
-      text-decoration:none;
-      border-radius:4px;
-      font-weight:bold;
-    }
-    .btn-detalhe:hover{background:#1B5E20;}
+<script>
+  async function carregarPets() {
+    const { data, error } = await supabaseClient
+      .from("pets")
+      .select("*")
+      .order("id", { ascending: true });
 
-    /* 👉 estilo dos tooltips permanentes (pets perdidos) */
-    .leaflet-tooltip.tooltip-pet {
-      background: #fff;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      padding: 10px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-      color: #333;
-      font-size: 14px;
-      max-width: 220px;
-    }
-    .leaflet-tooltip.tooltip-pet h3 {
-      margin: 0 0 5px;
-      font-size: 16px;
-      color: #2E7D32;
-    }
-    .leaflet-tooltip.tooltip-pet img {
-      width: 100%;
-      height: auto;
-      border-radius: 6px;
-      margin-bottom: 5px;
-    }
-  </style>
-</head>
-<body>
-  <header>🐾 Ajude um Pet Perdido</header>
-  <nav>
-    <a href="index.html">Início</a>
-    <a href="cadastro.html">Cadastrar Pet</a>
-    <a href="lista.html">Lista de Pets</a>
-    <a href="mapa.html">Mapa</a>
-  </nav>
-  <div id="map"></div>
+    if (error) { console.error("Erro ao carregar pets:", error); return; }
+    if (!data || data.length === 0) { console.log("Nenhum pet cadastrado."); return; }
 
-  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script>
-    const map = L.map('map').setView([-14.235, -51.9253], 4);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '© OpenStreetMap contributors'
-    }).addTo(map);
+    const bounds = [];
 
-    const supabaseClient = supabase.createClient(
-      "https://ijzkiooyisfdmbmdjmso.supabase.co",
-      "sb_publishable_OTMLQWCUsgMZSuRALOk--g_EVe657MT"
-    );
+    data.forEach(pet => {
+      const lat = parseFloat(pet.latitude);
+      const lng = parseFloat(pet.longitude);
+      if (!isNaN(lat) && !isNaN(lng)) {
+        bounds.push([lat, lng]);
 
-    async function carregarPets() {
-      const { data, error } = await supabaseClient
-        .from("pets")
-        .select("*")
-        .order("id", { ascending: true });
+        // 👉 Ícone personalizado com miniatura da foto
+        const icon = L.icon({
+          iconUrl: pet.foto, // usa a foto do pet como ícone
+          iconSize: [50, 50], // tamanho da miniatura
+          iconAnchor: [25, 25], // centraliza o ícone
+          popupAnchor: [0, -25] // posição do popup em relação ao ícone
+        });
 
-      if (error) { console.error("Erro ao carregar pets:", error); return; }
-      if (!data || data.length === 0) { console.log("Nenhum pet cadastrado."); return; }
+        const marker = L.marker([lat, lng], { icon }).addTo(map);
 
-      const bounds = [];
+        const popupContent = `
+          <h3>${pet.nome}</h3>
+          <img src="${pet.foto}" alt="Foto de ${pet.nome}"
+               style="width:150px;height:150px;object-fit:cover;border-radius:8px;margin:5px 0;">
+          <p><b>Status:</b> ${pet.status}</p>
+          <p><b>Contato:</b> ${pet.contato || "Não informado"}</p>
+          <a href="detalhe.html?id=${pet.id}" class="btn-detalhe">🔍 Ver detalhes</a>
+        `;
 
-      data.forEach(pet => {
-        const lat = parseFloat(pet.latitude);
-        const lng = parseFloat(pet.longitude);
-        if (!isNaN(lat) && !isNaN(lng)) {
-          bounds.push([lat, lng]);
-
-          const icon = L.icon({
-            iconUrl: pet.status === "encontrado"
-              ? "https://maps.google.com/mapfiles/ms/icons/green-dot.png"
-              : "https://maps.google.com/mapfiles/ms/icons/red-dot.png",
-            iconSize: [32, 32],
-            iconAnchor: [16, 32],
-            popupAnchor: [0, -32]
-          });
-
-          const marker = L.marker([lat, lng], { icon }).addTo(map);
-
-          const content = `
-            <h3>${pet.nome}</h3>
-            <img src="${pet.foto}" alt="Foto de ${pet.nome}"
-                 style="width:150px;height:150px;object-fit:cover;border-radius:8px;margin:5px 0;">
-            <p><b>Status:</b> ${pet.status}</p>
-            <p><b>Contato:</b> ${pet.contato || "Não informado"}</p>
-            <a href="detalhe.html?id=${pet.id}" class="btn-detalhe">🔍 Ver detalhes</a>
-          `;
-
-          // popup normal ao clicar (para todos)
-          marker.bindPopup(content);
-
-          // 👉 se for perdido, mostra também como "tooltip permanente"
-          if (pet.status === "perdido") {
-            marker.bindTooltip(content, {
-              permanent: true,
-              direction: "top",
-              offset: [0, -32],
-              className: "tooltip-pet"
-            });
-          }
-        }
-      });
-
-      if (bounds.length > 0) {
-        map.fitBounds(bounds);
+        // 👉 popup abre ao clicar na miniatura
+        marker.bindPopup(popupContent);
       }
-    }
+    });
 
-    carregarPets();
-
-    // 👉 Centraliza no usuário ao abrir
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(pos => {
-        const lat = pos.coords.latitude;
-        const lng = pos.coords.longitude;
-        map.setView([lat, lng], 14);
-      });
+    if (bounds.length > 0) {
+      map.fitBounds(bounds);
     }
-  </script>
-</body>
-</html>
+  }
+
+  carregarPets();
+</script>
