@@ -111,7 +111,9 @@
 
     // Função para abrir detalhe
     function abrirDetalhe(id) {
-      window.location.href = `detalhe.html?id=${encodeURIComponent(id)}`;
+      function abrirDetalhe(id) {
+  window.location.href = `/localiza-pet/detalhe.html?id=${encodeURIComponent(id)}`;
+}
     }
 
     // Função para alterar status
@@ -133,3 +135,4 @@
   </script>
 </body>
 </html>
+
