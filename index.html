@@ -34,13 +34,29 @@
       text-align: center;
       padding: 40px 20px;
     }
+    .btn-add {
+      display: inline-block;
+      margin-top: 20px;
+      padding: 12px 20px;
+      background: #2E7D32;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 18px;
+      font-weight: bold;
+      cursor: pointer;
+      text-decoration: none;
+    }
+    .btn-add:hover {
+      background: #1B5E20;
+    }
 
     /* Botão flutuante redondo com + */
     .botao-flutuante {
       position: fixed;
       bottom: 20px;
       right: 20px;
-      background: #4CAF50; /* Verde vivo */
+      background: #4CAF50;
       color: white;
       width: 60px;
       height: 60px;
@@ -48,11 +64,11 @@
       font-size: 32px;
       font-weight: bold;
       text-align: center;
-      line-height: 60px; /* Centraliza o + */
+      line-height: 60px;
       text-decoration: none;
       box-shadow: 0 6px 10px rgba(0,0,0,0.4);
       transition: background 0.3s ease;
-      z-index: 999; /* Fica por cima sem cobrir tudo */
+      z-index: 999;
     }
     .botao-flutuante:hover {
       background: #2E7D32;
@@ -71,6 +87,11 @@
   <div class="container">
     <h2>Bem-vindo!</h2>
     <p>Nosso objetivo é ajudar pets perdidos a voltarem para casa 🐶🐱</p>
+  </div>
+
+  <!-- Aqui você mantém o seu mapa e outros conteúdos -->
+  <div id="mapa">
+    <!-- Código do mapa vai aqui -->
   </div>
 
   <!-- Botão flutuante com + -->
