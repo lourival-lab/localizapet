@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>🔎 Detalhes do Pet</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -63,7 +64,7 @@
       font-size: 18px;
       margin: 10px 0;
     }
-    iframe {
+    #map {
       width: 100%;
       height: 300px;
       border: 1px solid #ccc;
@@ -80,12 +81,14 @@
     <a href="mapa.html">Mapa</a>
   </nav>
   <div class="container" id="detalhesPet">Carregando informações do pet...</div>
+  <div id="map"></div>
 
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
     const supabaseClient = supabase.createClient(
       "https://ijzkiooyisfdmbmdjmso.supabase.co",
-      "sb_publishable_OTMLQWCUsgMZSuRALOk--g_EVe657MT"
+      "sb-publishable_OTMLQWCUsgMZSuRALOk--g_EVe657MT"
     );
 
     const idParam = new URLSearchParams(window.location.search).get("id");
@@ -118,15 +121,32 @@
         <p><b>Cor:</b> ${pet.cor || "Não informado"}</p>
         <p class="status"><b>Status:</b> ${pet.status === "encontrado" ? "✅ Encontrado" : "❌ Perdido"}</p>
         <p><b>Contato:</b> ${pet.contato || "Não informado"}</p>
-        <iframe 
-          src="https://www.openstreetmap.org/export/embed.html?bbox=${pet.longitude-0.01},${pet.latitude-0.01},${pet.longitude+0.01},${pet.latitude+0.01}&layer=mapnik&marker=${pet.latitude},${pet.longitude}" 
-          aria-label="Mapa da localização do pet">
-        </iframe>
         ${pet.status === "perdido" ? `
           <button class="encontrado" aria-label="Marcar como encontrado" onclick="marcarEncontrado(${pet.id})">
             ✅ Marcar como Encontrado
           </button>` : ""}
       `;
+
+      // Inicializa o mapa Leaflet
+      if (pet.latitude && pet.longitude) {
+        const map = L.map('map').setView([pet.latitude, pet.longitude], 15);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        const borderColor = pet.status === "encontrado" ? "green" : "red";
+        const iconHtml = `
+          <div style="width:40px;height:40px;border-radius:50%;overflow:hidden;border:3px solid ${borderColor};">
+            <img src="${pet.foto || 'img/pet-placeholder.png'}" style="width:100%;height:100%;object-fit:cover;">
+          </div>
+        `;
+        const icon = L.divIcon({ html: iconHtml, className: "custom-pet-icon", iconSize: [40, 40] });
+
+        L.marker([pet.latitude, pet.longitude], { icon }).addTo(map)
+          .bindPopup(`<b>${pet.nome}</b><br>Status: ${pet.status}`);
+      } else {
+        document.getElementById("map").innerHTML = "<p>📍 Localização não informada</p>";
+      }
     }
 
     async function marcarEncontrado(id) {
@@ -151,4 +171,3 @@
   </script>
 </body>
 </html>
-
