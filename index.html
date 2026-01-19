@@ -113,18 +113,15 @@
 
         const marker = L.marker([lat, lng], { icon }).addTo(map);
 
-        // Conteúdo do popup
-        const popupContent = `
+        // Popup no formato original
+        marker.bindPopup(`
           <h3>${nome}</h3>
           <img src="${foto}" alt="Foto de ${nome}"
                style="width:150px;height:150px;object-fit:cover;border-radius:8px;margin:5px 0;">
           <p><b>Status:</b> ${pet.status || "Não informado"}</p>
           <p><b>Contato:</b> ${pet.contato || "Não informado"}</p>
           <a href="detalhe.html?id=${pet.id}" class="btn-detalhe">🔍 Ver detalhes</a>
-        `;
-
-        // Popup abre ao clicar no marcador
-        marker.bindPopup(popupContent);
+        `);
       });
 
       if (bounds.length > 0) {
