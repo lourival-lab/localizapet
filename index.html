@@ -34,7 +34,7 @@
   </nav>
   <div id="map"></div>
 
-  <!-- Carrega Leaflet e Supabase antes de qualquer uso -->
+  <!-- Scripts -->
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
@@ -45,7 +45,7 @@
       attribution: '© OpenStreetMap contributors'
     }).addTo(map);
 
-    // ✅ chave pública correta
+    // Cliente Supabase (chave pública)
     const supabaseClient = supabase.createClient(
       "https://ijzkiooyisfdmbmdjmso.supabase.co",
       "sb-publishable_OTMLQWCUsgMZSuRALOk--g_EVe657MT"
@@ -57,10 +57,14 @@
         .select("*")
         .order("id", { ascending: true });
 
-      console.log("Resultado Supabase:", data, error);
-
-      if (error) { console.error("Erro ao carregar pets:", error); return; }
-      if (!data || data.length === 0) { console.log("Nenhum pet cadastrado."); return; }
+      if (error) {
+        console.error("Erro ao carregar pets:", error);
+        return;
+      }
+      if (!data || data.length === 0) {
+        console.log("Nenhum pet cadastrado.");
+        return;
+      }
 
       const bounds = [];
 
@@ -68,10 +72,7 @@
         const lat = parseFloat(pet.latitude);
         const lng = parseFloat(pet.longitude);
 
-        if (isNaN(lat) || isNaN(lng)) {
-          console.warn("Coordenadas inválidas:", pet);
-          return;
-        }
+        if (isNaN(lat) || isNaN(lng)) return;
 
         bounds.push([lat, lng]);
 
@@ -79,7 +80,7 @@
         const nome = pet.nome || "Pet sem nome";
         const borderColor = pet.status === "encontrado" ? "green" : "red";
 
-        // 👉 Ícone com miniatura circular + nome abaixo com fundo semitransparente
+        // Ícone customizado
         const iconHtml = `
           <div style="text-align:center;">
             <div style="
@@ -126,15 +127,12 @@
       }
     }
 
-    // ✅ só chama depois de definir supabaseClient
     carregarPets();
 
-    // 👉 Centraliza no usuário ao abrir
+    // Centraliza no usuário
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(pos => {
-        const lat = pos.coords.latitude;
-        const lng = pos.coords.longitude;
-        map.setView([lat, lng], 14);
+        map.setView([pos.coords.latitude, pos.coords.longitude], 14);
       });
     }
   </script>
