@@ -2,13 +2,13 @@
   async function carregarPets() {
     const { data, error } = await supabaseClient
       .from("pets")
-      .select("*")
-      .order("id", { ascending: true });
+      .select("*");
 
     if (error) {
       console.error("Erro ao carregar pets:", error);
       return;
     }
+
     if (!data || data.length === 0) {
       console.log("Nenhum pet cadastrado.");
       return;
@@ -18,13 +18,13 @@
 
     data.forEach(pet => {
       // 👉 Log para depuração
-      console.log("Pet carregado:", pet);
+      console.log("Pet recebido:", pet);
 
-      // Aceita tanto latitude/longitude quanto lat/lng
-      const lat = Number(pet.latitude || pet.lat);
-      const lng = Number(pet.longitude || pet.lng);
+      // Força conversão para número e remove espaços
+      const lat = pet.latitude ? Number(String(pet.latitude).trim()) : null;
+      const lng = pet.longitude ? Number(String(pet.longitude).trim()) : null;
 
-      if (!lat || !lng) {
+      if (lat === null || lng === null || isNaN(lat) || isNaN(lng)) {
         console.warn("Coordenadas inválidas para pet:", pet);
         return;
       }
@@ -64,16 +64,14 @@
 
       const marker = L.marker([lat, lng], { icon }).addTo(map);
 
-      const popupContent = `
+      marker.bindPopup(`
         <h3>${nome}</h3>
         <img src="${foto}" alt="Foto de ${nome}"
              style="width:150px;height:150px;object-fit:cover;border-radius:8px;margin:5px 0;">
         <p><b>Status:</b> ${pet.status || "Não informado"}</p>
         <p><b>Contato:</b> ${pet.contato || "Não informado"}</p>
         <a href="detalhe.html?id=${pet.id}" class="btn-detalhe">🔍 Ver detalhes</a>
-      `;
-
-      marker.bindPopup(popupContent);
+      `);
     });
 
     if (bounds.length > 0) {
