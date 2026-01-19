@@ -6,69 +6,48 @@
   <title>🐾 Localizapet - Início</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
   <style>
-    body { font-family: Arial, sans-serif; background:#E8F5E9; margin:0; padding:0; }
-    header { background:#C8E6C9; color:#2E7D32; padding:15px; text-align:center; font-size:24px; font-weight:bold; }
-    nav { text-align:center; padding:10px; background:#2E7D32; }
-    nav a { color:white; margin:0 10px; text-decoration:none; font-weight:bold; }
-    #map { height: 90vh; width: 100%; }
-    .btn-detalhe {
-      display:inline-block;
-      margin-top:8px;
-      padding:6px 12px;
-      background:#FFFFFF;
-      color:#2E7D32;
-      border:none;
-      border-radius:4px;
-      font-weight:bold;
-      cursor:pointer;
-      text-decoration:none;
+    body {
+      font-family: Arial, sans-serif;
+      background: #E8F5E9;
+      margin: 0;
+      padding: 0;
     }
-    .btn-detalhe:hover { background:#C8E6C9; }
-
-    /* marcador personalizado */
-    .custom-pet-icon {
-      width: 50px;
-      height: 50px;
-      border-radius: 50%;
-      overflow: hidden;
-      box-shadow: 0 0 5px rgba(0,0,0,0.5);
-      border: 2px solid white;
+    header {
+      background: #C8E6C9;
+      color: #2E7D32;
+      padding: 15px;
+      text-align: center;
+      font-size: 24px;
+      font-weight: bold;
     }
-    .custom-pet-icon img {
+    nav {
+      text-align: center;
+      padding: 10px;
+      background: #2E7D32;
+    }
+    nav a {
+      color: white;
+      margin: 0 10px;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    #map {
+      height: 80vh;
       width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
     }
-
-    /* foto circular no popup */
-    .popup-photo {
-      width: 200px;
-      height: 200px;
+    .leaflet-marker-icon {
       border-radius: 50%;
-      object-fit: cover;
-      display: block;
-      margin: 10px auto;
-      box-shadow: 0 0 8px rgba(0,0,0,0.3);
-    }
-
-    @media (max-width: 600px) {
-      .popup-photo {
-        width: 120px;
-        height: 120px;
-      }
+      border: 2px solid #2E7D32;
     }
   </style>
 </head>
 <body>
-  <header>🐶 LOCALIZAPET 🐱</header>
+  <header>🐾 Mapa de Pets Perdidos</header>
   <nav>
     <a href="index.html">Início</a>
+    <a href="lista.html">Lista</a>
     <a href="cadastro.html">Cadastrar Pet</a>
-    <a href="lista.html">Lista de Pets</a>
-    <a href="mapa.html">Mapa</a>
   </nav>
-
   <div id="map"></div>
 
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
@@ -79,57 +58,49 @@
       "sb_publishable_OTMLQWCUsgMZSuRALOk--g_EVe657MT"
     );
 
-    document.addEventListener("DOMContentLoaded", () => {
-      const map = L.map('map').setView([-14.235, -51.9253], 4);
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap contributors'
-      }).addTo(map);
+    const map = L.map('map').setView([-27.0, -49.3], 10);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap'
+    }).addTo(map);
 
-      async function carregarPets() {
-        const { data, error } = await supabaseClient
-          .from("pets")
-          .select("*")
-          .order("id", { ascending: false })
-          .limit(10);
+    async function carregarPets() {
+      const { data: pets, error } = await supabaseClient
+        .from("pets")
+        .select("*");
 
-        if (error) {
-          console.error("Erro ao carregar pets:", error);
-          return;
-        }
-
-        if (!data || data.length === 0) {
-          console.log("Nenhum pet cadastrado.");
-          return;
-        }
-
-        data.forEach(pet => {
-          const lat = parseFloat(pet.latitude);
-          const lng = parseFloat(pet.longitude);
-          if (!isNaN(lat) && !isNaN(lng)) {
-            const petIcon = L.divIcon({
-              html: `<div class="custom-pet-icon"><img src="${pet.foto}" alt="${pet.nome}"></div>`,
-              className: "", 
-              iconSize: [50, 50],
-              iconAnchor: [25, 50],
-              popupAnchor: [0, -50]
-            });
-
-            L.marker([lat, lng], { icon: petIcon }).addTo(map)
-              .bindPopup(`
-                <div style="text-align:center;">
-                  <h3>${pet.nome}</h3>
-                  <img src="${pet.foto}" alt="Foto de ${pet.nome}" class="popup-photo">
-                  <p><b>Status:</b> ${pet.status}</p>
-                  <p><b>Contato:</b> ${pet.contato || "Não informado"}</p>
-                  <a class="btn-detalhe" href="detalhe.html?id=${pet.id}">🔍 Ver detalhes</a>
-                </div>
-              `);
-          }
-        });
+      if (error) {
+        console.error(error);
+        return;
       }
 
-      carregarPets();
-    });
+      pets.forEach(pet => {
+        if (pet.latitude && pet.longitude) {
+          // garantir que a foto seja uma URL válida
+          const fotoUrl = pet.foto && pet.foto.startsWith("http")
+            ? pet.foto
+            : "img/pet-placeholder.png";
+
+          const petIcon = L.icon({
+            iconUrl: fotoUrl,
+            iconSize: [50, 50],
+            className: 'pet-icon'
+          });
+
+          const marker = L.marker([pet.latitude, pet.longitude], { icon: petIcon }).addTo(map);
+
+          marker.bindPopup(`
+            <b>${pet.nome}</b><br>
+            ${pet.tipo || "Não informado"}<br>
+            Status: ${pet.status}<br>
+            <img src="${fotoUrl}" width="100"><br>
+            <a href="detalhe.html?id=${pet.id}">Ver detalhes</a>
+          `);
+        }
+      });
+    }
+
+    carregarPets();
   </script>
 </body>
 </html>
+
