@@ -99,6 +99,7 @@
                 <img src="${pet.foto}" style="width:150px;height:150px;object-fit:cover;border-radius:8px;">
                 <p><b>Status:</b> ${pet.status}</p>
                 <p><b>Contato:</b> ${pet.contato || "Não informado"}</p>
+                <p> class="btn-detalhe" href="detalhe.html?id=${pet.id}">🔍 Ver detalhes</p>
               `);
           }
         });
@@ -109,3 +110,4 @@
   </script>
 </body>
 </html>
+
