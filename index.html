@@ -1,71 +1,66 @@
-<script>
-  async function carregarPets() {
-    try {
-      const { data, error } = await supabaseClient
-        .from("pets")
-        .select("*")
-        .order("id", { ascending: true });
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Teste Supabase + Leaflet</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+  <style>
+    #map { height: 80vh; width: 100%; }
+  </style>
+</head>
+<body>
+  <h1>🐾 Teste Supabase + Leaflet</h1>
+  <div id="map"></div>
 
-      if (error) {
-        console.error("Erro ao carregar pets:", error);
-        document.body.innerHTML += "<p style='color:red'>Erro ao carregar pets.</p>";
-        return;
-      }
-      if (!data || data.length === 0) {
-        console.log("Nenhum pet cadastrado.");
-        document.body.innerHTML += "<p>Nenhum pet cadastrado.</p>";
-        return;
-      }
+  <!-- Leaflet -->
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <!-- Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-      const bounds = [];
+  <script>
+    // 👉 Inicializa o mapa
+    const map = L.map('map').setView([-14.235, -51.9253], 4);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
 
-      data.forEach(pet => {
-        const lat = parseFloat(pet.latitude);
-        const lng = parseFloat(pet.longitude);
-        if (!isNaN(lat) && !isNaN(lng)) {
-          bounds.push([lat, lng]);
+    // 👉 Inicializa o Supabase
+    const supabaseClient = supabase.createClient(
+      "https://SEU-PROJETO.supabase.co",   // substitua pelo seu URL
+      "SUA-CHAVE-PUBLICA"                  // substitua pela sua chave pública
+    );
 
-          // 👉 Ícone com miniatura + borda colorida
-          const borderColor = pet.status === "encontrado" ? "green" : "red";
-          const iconHtml = `
-            <div style="width:50px;height:50px;border-radius:50%;overflow:hidden;
-                        border:3px solid ${borderColor};box-shadow:0 0 5px rgba(0,0,0,0.5);">
-              <img src="${pet.foto}" alt="${pet.nome}" 
-                   style="width:100%;height:100%;object-fit:cover;">
-            </div>
-          `;
+    async function carregarPets() {
+      try {
+        const { data, error } = await supabaseClient
+          .from("pets")
+          .select("*")
+          .limit(5); // pega só alguns para teste
 
-          const icon = L.divIcon({
-            html: iconHtml,
-            className: "custom-pet-icon",
-            iconSize: [50, 50],
-            iconAnchor: [25, 25],
-            popupAnchor: [0, -25]
-          });
-
-          const marker = L.marker([lat, lng], { icon }).addTo(map);
-
-          const popupContent = `
-            <h3>${pet.nome}</h3>
-            <img src="${pet.foto}" alt="Foto de ${pet.nome}"
-                 style="width:150px;height:150px;object-fit:cover;border-radius:8px;margin:5px 0;">
-            <p><b>Status:</b> ${pet.status}</p>
-            <p><b>Contato:</b> ${pet.contato || "Não informado"}</p>
-            <a href="detalhe.html?id=${pet.id}" class="btn-detalhe">🔍 Ver detalhes</a>
-          `;
-
-          marker.bindPopup(popupContent);
+        if (error) {
+          console.error("Erro Supabase:", error);
+          document.body.innerHTML += "<p style='color:red'>Erro Supabase: " + error.message + "</p>";
+          return;
         }
-      });
 
-      if (bounds.length > 0) {
-        map.fitBounds(bounds);
+        console.log("Pets carregados:", data);
+        document.body.innerHTML += "<p>Pets carregados: " + data.length + "</p>";
+
+        // 👉 Exemplo: coloca marcadores simples
+        data.forEach(pet => {
+          if (pet.latitude && pet.longitude) {
+            L.marker([pet.latitude, pet.longitude])
+              .addTo(map)
+              .bindPopup(`<b>${pet.nome}</b><br>Status: ${pet.status}`);
+          }
+        });
+      } catch (e) {
+        console.error("Erro inesperado:", e);
+        document.body.innerHTML += "<p style='color:red'>Erro inesperado: " + e.message + "</p>";
       }
-    } catch (e) {
-      console.error("Erro inesperado:", e);
-      document.body.innerHTML += "<p style='color:red'>Erro inesperado: " + e.message + "</p>";
     }
-  }
 
-  carregarPets();
-</script>
+    carregarPets();
+  </script>
+</body>
+</html>
