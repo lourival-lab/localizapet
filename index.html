@@ -3,52 +3,39 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>🐾 Ajude um Pet Perdido</title>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+  <title>🐾 LocalizaPet - Início</title>
   <style>
-    body{margin:0;padding:0;font-family:Arial;background:#E8F5E9;}
-    header{background:#C8E6C9;color:#2E7D32;padding:15px;text-align:center;font-size:24px;font-weight:bold;}
-    nav{text-align:center;padding:10px;background:#2E7D32;}
-    nav a{color:white;margin:0 10px;text-decoration:none;font-weight:bold;}
-    #map{height:80vh;width:100%;}
-    .btn-detalhe, .btn-status{
-      display:inline-block;
-      margin-top:8px;
-      padding:6px 12px;
-      background:#2E7D32;
-      color:white;
-      border:none;
-      border-radius:4px;
-      font-weight:bold;
-      cursor:pointer;
-    }
-    .btn-detalhe:hover, .btn-status:hover{ background:#1B5E20; }
-    .tooltip-pet { display:flex; align-items:center; }
-    .tooltip-pet img {
-      width:40px; height:40px; object-fit:cover; border-radius:50%;
-      margin-right:8px; box-shadow:0 1px 4px rgba(0,0,0,0.3);
-    }
-    .tooltip-pet span { font-weight:bold; color:#2E7D32; }
+    body { font-family: Arial, sans-serif; background:#E8F5E9; margin:0; padding:0; }
+    header { background:#C8E6C9; color:#2E7D32; padding:15px; text-align:center; font-size:24px; font-weight:bold; }
+    nav { text-align:center; padding:10px; background:#2E7D32; }
+    nav a { color:white; margin:0 10px; text-decoration:none; font-weight:bold; }
+    .container { max-width:800px; margin:20px auto; background:#fff; padding:20px; border-radius:8px; box-shadow:0 2px 6px rgba(0,0,0,0.2); }
+    h2 { color:#2E7D32; }
+    .pet-card { border-bottom:1px solid #ddd; padding:10px 0; }
+    .pet-card img { width:120px; height:120px; object-fit:cover; border-radius:8px; margin-right:10px; }
+    .pet-info { display:flex; align-items:center; }
+    .btn-detalhe { display:inline-block; margin-top:8px; padding:6px 12px; background:#2E7D32; color:white; border:none; border-radius:4px; font-weight:bold; cursor:pointer; text-decoration:none; }
+    .btn-detalhe:hover { background:#1B5E20; }
   </style>
 </head>
 <body>
-  <header>🐾 Ajude um Pet Perdido</header>
+  <header>🐾 LocalizaPet</header>
   <nav>
     <a href="index.html">Início</a>
     <a href="cadastro.html">Cadastrar Pet</a>
     <a href="lista.html">Lista de Pets</a>
     <a href="mapa.html">Mapa</a>
   </nav>
-  <div id="map"></div>
 
-  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <div class="container">
+    <h2>Pets cadastrados recentemente</h2>
+    <div id="listaPets">
+      <p>Carregando pets...</p>
+    </div>
+  </div>
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
-    const map = L.map('map').setView([-14.235, -51.9253], 4);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '© OpenStreetMap contributors'
-    }).addTo(map);
-
     const supabaseClient = supabase.createClient(
       "https://ijzkiooyisfdmbmdjmso.supabase.co",
       "sb_publishable_OTMLQWCUsgMZSuRALOk--g_EVe657MT"
@@ -58,75 +45,38 @@
       const { data, error } = await supabaseClient
         .from("pets")
         .select("*")
-        .order("id", { ascending: true });
+        .order("id", { ascending: false })
+        .limit(5);
 
-      if (error) { console.error("Erro ao carregar pets:", error); return; }
-      if (!data || data.length === 0) { console.log("Nenhum pet cadastrado."); return; }
-
-      const bounds = [];
-
-      data.forEach(pet => {
-        const lat = parseFloat(pet.latitude);
-        const lng = parseFloat(pet.longitude);
-        if (!isNaN(lat) && !isNaN(lng)) {
-          bounds.push([lat, lng]);
-
-          const icon = L.icon({
-            iconUrl: pet.status === "encontrado"
-              ? "https://maps.google.com/mapfiles/ms/icons/green-dot.png"
-              : "https://maps.google.com/mapfiles/ms/icons/red-dot.png",
-            iconSize: [32, 32],
-            iconAnchor: [16, 32],
-            popupAnchor: [0, -32]
-          });
-
-          L.marker([lat, lng], { icon }).addTo(map)
-           .bindPopup(`
-              <h3>${pet.nome}</h3>
-              <img src="${pet.foto}" alt="Foto de ${pet.nome}"
-                   style="width:150px;height:150px;object-fit:cover;border-radius:8px;margin:5px 0;">
-              <p><b>Status:</b> ${pet.status}</p>
-              <p><b>Contato:</b> ${pet.contato || "Não informado"}</p>
-              <button class="btn-detalhe" onclick="abrirDetalhe(${pet.id})">
-                🔍 Ver detalhes
-              </button>
-              <button class="btn-status" onclick="alterarStatus(${pet.id})">
-                ✅ Marcar como Encontrado
-              </button>
-           `)
-           .bindTooltip(
-             `<div class="tooltip-pet">
-                <img src="${pet.foto}" alt="Foto de ${pet.nome}">
-                <span>${pet.nome}</span>
-              </div>`,
-             { permanent: true, direction: "top" }
-           );
-        }
-      });
-
-      if (bounds.length > 0) {
-        map.fitBounds(bounds);
-      }
-    }
-
-    // Função para abrir detalhe com caminho absoluto
-    function abrirDetalhe(id) {
-      window.location.href = `/localizapet/detalhe.html?id=${encodeURIComponent(id)}`;
-    }
-
-    // Função para alterar status
-    async function alterarStatus(id) {
-      const { error } = await supabaseClient
-        .from("pets")
-        .update({ status: "encontrado" })
-        .eq("id", id);
+      const lista = document.getElementById("listaPets");
 
       if (error) {
-        alert("Erro ao atualizar status: " + error.message);
+        console.error("Erro ao carregar pets:", error);
+        lista.innerHTML = "<p>Erro ao carregar pets.</p>";
         return;
       }
 
-      alert("Status atualizado para ENCONTRADO!");
+      if (!data || data.length === 0) {
+        lista.innerHTML = "<p>Nenhum pet cadastrado ainda.</p>";
+        return;
+      }
+
+      lista.innerHTML = "";
+      data.forEach(pet => {
+        lista.innerHTML += `
+          <div class="pet-card">
+            <div class="pet-info">
+              <img src="${pet.foto}" alt="Foto de ${pet.nome}">
+              <div>
+                <p><b>${pet.nome}</b></p>
+                <p>Status: ${pet.status}</p>
+                <!-- Caminho absoluto para evitar repetição -->
+                <a class="btn-detalhe" href="/localizapet/detalhe.html?id=${pet.id}">🔍 Ver detalhes</a>
+              </div>
+            </div>
+          </div>
+        `;
+      });
     }
 
     carregarPets();
