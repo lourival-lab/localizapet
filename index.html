@@ -52,7 +52,6 @@
       box-shadow: 0 0 8px rgba(0,0,0,0.3);
     }
 
-    /* responsividade */
     @media (max-width: 600px) {
       .popup-photo {
         width: 120px;
@@ -107,7 +106,6 @@
           const lat = parseFloat(pet.latitude);
           const lng = parseFloat(pet.longitude);
           if (!isNaN(lat) && !isNaN(lng)) {
-            // marcador com foto redonda
             const petIcon = L.divIcon({
               html: `<div class="custom-pet-icon"><img src="${pet.foto}" alt="${pet.nome}"></div>`,
               className: "", 
