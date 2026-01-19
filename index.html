@@ -110,15 +110,18 @@
 
         const marker = L.marker([lat, lng], { icon }).addTo(map);
 
-        marker.bindPopup(`
-          <h3>${nome}</h3>
-          <img src="${foto}" alt="Foto de ${nome}"
-               style="width:150px;height:150px;object-fit:cover;border-radius:8px;margin:5px 0;">
-          <p><b>Status:</b> ${pet.status || "Não informado"}</p>
-          <p><b>Contato:</b> ${pet.contato || "Não informado"}</p>
-          <a href="detalhe.html?id=${pet.id}" class="btn-detalhe">🔍 Ver detalhes</a>
-        `);
-      });
+const popupContent = `
+  <h3>${nome}</h3>
+  <img src="${foto}" alt="Foto de ${nome}"
+       style="width:150px;height:150px;object-fit:cover;border-radius:8px;margin:5px 0;">
+  <p><b>Status:</b> ${pet.status || "Não informado"}</p>
+  <p><b>Contato:</b> ${pet.contato || "Não informado"}</p>
+  <a href="detalhe.html?id=${pet.id}" class="btn-detalhe">🔍 Ver detalhes</a>
+`;
+
+marker.bindPopup(popupContent).on('click', () => {
+  marker.openPopup();
+});
 
       if (bounds.length > 0) {
         map.fitBounds(bounds);
@@ -137,3 +140,4 @@
   </script>
 </body>
 </html>
+
