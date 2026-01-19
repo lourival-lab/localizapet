@@ -46,51 +46,64 @@
       "sb_publishable_OTMLQWCUsgMZSuRALOk--g_EVe657MT"
     );
 
-    async function carregarPets() {
-      const { data, error } = await supabaseClient
-        .from("pets")
-        .select("*")
-        .order("id", { ascending: false })
-        .limit(5);
-
-      const lista = document.getElementById("listaPets");
-
-      if (error) {
-        console.error("Erro ao carregar pets:", error);
-        lista.innerHTML = "<p>Erro ao carregar pets.</p>";
-        return;
-      }
-
-      if (!data || data.length === 0) {
-        lista.innerHTML = "<p>Nenhum pet cadastrado ainda.</p>";
-        return;
-      }
-
-      lista.innerHTML = "";
-      data.forEach(pet => {
-        lista.innerHTML += `
-          <div class="pet-card">
-            <div class="pet-info">
-              <img src="${pet.foto}" alt="Foto de ${pet.nome}">
-              <div>
-                <p><b>${pet.nome}</b></p>
-                <p>Status: ${pet.status}</p>
-                <a class="btn-detalhe" href="detalhe.html?id=${pet.id}">🔍 Ver detalhes</a>
-              </div>
-            </div>
-          </div>
-        `;
-      });
-    }
-
-    carregarPets();
-
-    // Inicializa o mapa somente depois que o DOM estiver pronto
     document.addEventListener("DOMContentLoaded", () => {
-      const map = L.map('map').setView([-14.235, -51.9253], 4); // zoom ajustado
+      const map = L.map('map').setView([-14.235, -51.9253], 4);
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '© OpenStreetMap contributors'
       }).addTo(map);
+
+      async function carregarPets() {
+        const { data, error } = await supabaseClient
+          .from("pets")
+          .select("*")
+          .order("id", { ascending: false })
+          .limit(5);
+
+        const lista = document.getElementById("listaPets");
+
+        if (error) {
+          console.error("Erro ao carregar pets:", error);
+          lista.innerHTML = "<p>Erro ao carregar pets.</p>";
+          return;
+        }
+
+        if (!data || data.length === 0) {
+          lista.innerHTML = "<p>Nenhum pet cadastrado ainda.</p>";
+          return;
+        }
+
+        lista.innerHTML = "";
+        data.forEach(pet => {
+          // Lista de pets
+          lista.innerHTML += `
+            <div class="pet-card">
+              <div class="pet-info">
+                <img src="${pet.foto}" alt="Foto de ${pet.nome}">
+                <div>
+                  <p><b>${pet.nome}</b></p>
+                  <p>Status: ${pet.status}</p>
+                  <a class="btn-detalhe" href="detalhe.html?id=${pet.id}">🔍 Ver detalhes</a>
+                </div>
+              </div>
+            </div>
+          `;
+
+          // Marcadores no mapa
+          const lat = parseFloat(pet.latitude);
+          const lng = parseFloat(pet.longitude);
+          if (!isNaN(lat) && !isNaN(lng)) {
+            L.marker([lat, lng]).addTo(map)
+              .bindPopup(`
+                <h3>${pet.nome}</h3>
+                <img src="${pet.foto}" style="width:150px;height:150px;object-fit:cover;border-radius:8px;">
+                <p><b>Status:</b> ${pet.status}</p>
+                <p><b>Contato:</b> ${pet.contato || "Não informado"}</p>
+              `);
+          }
+        });
+      }
+
+      carregarPets();
     });
   </script>
 </body>
