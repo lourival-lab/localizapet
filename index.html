@@ -12,6 +12,27 @@
       margin: 0;
       padding: 0;
     }
+    .botao-flutuante {
+      position: fixed;
+      bottom: 20px;       /* distância da parte inferior */
+      right: 20px;        /* distância da parte direita */
+      width: 60px;
+      height: 60px;
+      background-color: #28a745; /* verde */
+      color: white;
+      border-radius: 50%; /* deixa redondo */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      text-decoration: none;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+      transition: background-color 0.3s ease;
+    }
+
+    .botao-flutuante:hover {
+      background-color: #218838; /* verde mais escuro ao passar o mouse */
+    }
     header {
       background: #C8E6C9;
       color: #2E7D32;
@@ -49,6 +70,9 @@
     <a href="mapa.html">Mapa de Pet</a>
   </nav>
   <div id="map"></div>
+
+  <!-- Botão flutuante -->
+  <a href="cadastro.html" class="botao-flutuante">+</a>
 
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -103,5 +127,6 @@
   </script>
 </body>
 </html>
+
 
 
