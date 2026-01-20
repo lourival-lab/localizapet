@@ -85,7 +85,11 @@
       if (novoStatus === "Visto" && navigator.geolocation) {
         try {
           const pos = await new Promise((resolve, reject) => {
-            navigator.geolocation.getCurrentPosition(resolve, reject);
+            navigator.geolocation.getCurrentPosition(
+              (position) => resolve(position),
+              (error) => reject(error),
+              { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+            );
           });
           lat = pos.coords.latitude;
           lng = pos.coords.longitude;
@@ -95,7 +99,7 @@
       }
 
       const updateData = { status: novoStatus };
-      if (lat && lng) {
+      if (lat !== null && lng !== null) {
         updateData.latitude = lat;
         updateData.longitude = lng;
       }
@@ -111,7 +115,7 @@
       }
 
       document.getElementById("statusPet").textContent = novoStatus;
-      if (lat && lng) {
+      if (lat !== null && lng !== null) {
         document.getElementById("localPet").textContent = `${lat}, ${lng}`;
       }
 
