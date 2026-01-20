@@ -58,7 +58,10 @@
       if (data.status === "Encontrado") {
         statusBtn = `<button class="btn-status" disabled>✅ Já marcado como Encontrado</button>`;
       } else if (data.status === "Visto") {
-        statusBtn = `<button class="btn-status" disabled>👀 Já marcado como Visto</button>`;
+        statusBtn = `
+          <button class="btn-status" disabled>👀 Já marcado como Visto</button>
+          <button class="btn-status" onclick="alterarStatus(${data.id}, 'Encontrado')">✅ Marcar como Encontrado</button>
+        `;
       } else {
         statusBtn = `
           <button class="btn-status" onclick="alterarStatus(${data.id}, 'Visto')">👀 Marcar como Visto</button>
@@ -94,10 +97,13 @@
 
       const btns = document.querySelectorAll(".btn-status");
       btns.forEach(btn => {
-        btn.textContent = novoStatus === "Encontrado"
-          ? "✅ Já marcado como Encontrado"
-          : "👀 Já marcado como Visto";
-        btn.disabled = true;
+        if (novoStatus === "Encontrado") {
+          btn.textContent = "✅ Já marcado como Encontrado";
+          btn.disabled = true;
+        } else if (novoStatus === "Visto") {
+          btn.textContent = "👀 Já marcado como Visto";
+          btn.disabled = true;
+        }
       });
 
       alert(`Status atualizado para ${novoStatus.toUpperCase()}!`);
