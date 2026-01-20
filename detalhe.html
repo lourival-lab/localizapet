@@ -53,10 +53,18 @@
         return;
       }
 
-      // Verifica se já está encontrado
-      const statusBtn = data.status === "Encontrado"
-        ? `<button class="btn-status" disabled>✅ Já marcado como Encontrado</button>`
-        : `<button class="btn-status" onclick="alterarStatus(${data.id})">✅ Marcar como Encontrado</button>`;
+      // Botões de status
+      let statusBtn = "";
+      if (data.status === "Encontrado") {
+        statusBtn = `<button class="btn-status" disabled>✅ Já marcado como Encontrado</button>`;
+      } else if (data.status === "Visto") {
+        statusBtn = `<button class="btn-status" disabled>👀 Já marcado como Visto</button>`;
+      } else {
+        statusBtn = `
+          <button class="btn-status" onclick="alterarStatus(${data.id}, 'Visto')">👀 Marcar como Visto</button>
+          <button class="btn-status" onclick="alterarStatus(${data.id}, 'Encontrado')">✅ Marcar como Encontrado</button>
+        `;
+      }
 
       container.innerHTML = `
         <h2>${data.nome}</h2>
@@ -71,10 +79,10 @@
       `;
     }
 
-    async function alterarStatus(id) {
+    async function alterarStatus(id, novoStatus) {
       const { error } = await supabaseClient
         .from("pets")
-        .update({ status: "Encontrado" })
+        .update({ status: novoStatus })
         .eq("id", id);
 
       if (error) {
@@ -82,11 +90,17 @@
         return;
       }
 
-      document.getElementById("statusPet").textContent = "Encontrado";
-      const btn = document.querySelector(".btn-status");
-      btn.textContent = "✅ Já marcado como Encontrado";
-      btn.disabled = true;
-      alert("Status atualizado para ENCONTRADO!");
+      document.getElementById("statusPet").textContent = novoStatus;
+
+      const btns = document.querySelectorAll(".btn-status");
+      btns.forEach(btn => {
+        btn.textContent = novoStatus === "Encontrado"
+          ? "✅ Já marcado como Encontrado"
+          : "👀 Já marcado como Visto";
+        btn.disabled = true;
+      });
+
+      alert(`Status atualizado para ${novoStatus.toUpperCase()}!`);
     }
 
     // Pega o id da URL
@@ -100,5 +114,3 @@
   </script>
 </body>
 </html>
-
-
