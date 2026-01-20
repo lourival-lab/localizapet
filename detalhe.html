@@ -99,9 +99,15 @@
       }
 
       const updateData = { status: novoStatus };
+
       if (lat !== null && lng !== null) {
         updateData.latitude = lat;
         updateData.longitude = lng;
+      }
+
+      if (novoStatus === "Encontrado") {
+        // define expiração para 7 dias a partir de agora
+        updateData.expires_at = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
       }
 
       const { error } = await supabaseClient
