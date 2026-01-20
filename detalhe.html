@@ -71,7 +71,7 @@
         <p><b>Cor:</b> ${data.cor}</p>
         <p><b>Status:</b> <span id="statusPet">${data.status}</span></p>
         <p><b>Contato:</b> ${data.contato || "Não informado"}</p>
-        <p><b>Localização:</b> ${data.latitude}, ${data.longitude}</p>
+        <p><b>Localização:</b> <span id="localPet">${data.latitude}, ${data.longitude}</span></p>
         ${statusBtn}
         <a href="mapa.html" class="voltar">⬅ Voltar ao mapa</a>
       `;
@@ -83,16 +83,15 @@
 
       // Captura localização se marcar como "Visto"
       if (novoStatus === "Visto" && navigator.geolocation) {
-        await new Promise((resolve) => {
-          navigator.geolocation.getCurrentPosition(
-            (pos) => {
-              lat = pos.coords.latitude;
-              lng = pos.coords.longitude;
-              resolve();
-            },
-            () => resolve() // se não conseguir localização, segue sem atualizar
-          );
-        });
+        try {
+          const pos = await new Promise((resolve, reject) => {
+            navigator.geolocation.getCurrentPosition(resolve, reject);
+          });
+          lat = pos.coords.latitude;
+          lng = pos.coords.longitude;
+        } catch (e) {
+          console.warn("Não foi possível capturar localização:", e);
+        }
       }
 
       const updateData = { status: novoStatus };
@@ -112,6 +111,10 @@
       }
 
       document.getElementById("statusPet").textContent = novoStatus;
+      if (lat && lng) {
+        document.getElementById("localPet").textContent = `${lat}, ${lng}`;
+      }
+
       alert(`Status atualizado para ${novoStatus.toUpperCase()}!`);
     }
 
