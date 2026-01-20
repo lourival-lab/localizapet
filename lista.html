@@ -14,6 +14,7 @@
     .pet-card img{width:200px;height:200px;object-fit:cover;border-radius:8px;}
     .status-perdido{color:red;font-weight:bold;}
     .status-encontrado{color:green;font-weight:bold;}
+    .status-visto{color:orange;font-weight:bold;}
   </style>
 </head>
 <body>
@@ -45,15 +46,27 @@
 
       document.getElementById("listaPets").innerHTML = "";
       data.forEach(pet => {
+        let statusClass = "";
+        let statusLabel = "";
+
+        if (pet.status === "Encontrado") {
+          statusClass = "status-encontrado";
+          statusLabel = "✅ Encontrado";
+        } else if (pet.status === "Visto") {
+          statusClass = "status-visto";
+          statusLabel = "👀 Visto";
+        } else {
+          statusClass = "status-perdido";
+          statusLabel = "❌ Perdido";
+        }
+
         document.getElementById("listaPets").innerHTML += `
           <div class="pet-card">
             <h3>${pet.nome}</h3>
             <img src="${pet.foto}" alt="Foto de ${pet.nome}">
             <p><b>Tipo:</b> ${pet.tipo}</p>
             <p><b>Cor:</b> ${pet.cor}</p>
-            <p class="${pet.status === "Encontrado" ? "status-Encontrado" : "status-Perdido"}">
-              ${pet.status === "Encontrado" ? "✅ Encontrado" : "❌ Perdido"}
-            </p>
+            <p class="${statusClass}">${statusLabel}</p>
             <p><b>Contato:</b> ${pet.contato || "Não informado"}</p>
             <a href="detalhe.html?id=${pet.id}">🔎 Ver detalhes</a>
           </div>
@@ -64,9 +77,4 @@
     carregarLista();
   </script>
 </body>
-
 </html>
-
-
-
-
