@@ -24,8 +24,7 @@
     <a href="index.html">Início</a>
     <a href="cadastro.html">Cadastrar Pet</a>
     <a href="lista.html">Lista de Pets</a>
-    <a href="mapa.html">Mapa</a>
-  </nav>
+    </nav>
 
   <div class="container" id="detalhesPet">
     <p>Carregando informações do pet...</p>
@@ -73,7 +72,7 @@
         <p><b>Contato:</b> ${data.contato || "Não informado"}</p>
         <p><b>Localização:</b> <span id="localPet">${data.latitude}, ${data.longitude}</span></p>
         ${statusBtn}
-        <a href="mapa.html" class="voltar">⬅ Voltar ao mapa</a>
+        <a href="index.html" class="voltar">⬅ Voltar ao início</a>
       `;
     }
 
@@ -139,3 +138,4 @@
   </script>
 </body>
 </html>
+
