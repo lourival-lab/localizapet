@@ -63,6 +63,9 @@
         `;
       }
 
+      // Monta link de rotas
+      const rotasUrl = `https://www.google.com/maps/dir/?api=1&origin=Minha+Localização&destination=${data.latitude},${data.longitude}`;
+
       container.innerHTML = `
         <h2>${data.nome}</h2>
         <img src="${data.foto}" alt="Foto de ${data.nome}">
@@ -71,7 +74,7 @@
         <p><b>Status:</b> <span id="statusPet">${data.status}</span></p>
         <p><b>Contato:</b> ${data.contato || "Não informado"}</p>
         <p><b>Localização:</b> <span id="localPet">${data.latitude}, ${data.longitude}</span></p>
-        <button class="btn-status" onclick="abrirRotas(${data.latitude}, ${data.longitude})">🗺️ Rotas</button>
+        <a href="${rotasUrl}" target="_blank" class="btn-status">🗺️ Rotas</a>
         ${statusBtn}
         <a href="index.html" class="voltar">⬅ Voltar ao início</a>
       `;
@@ -126,35 +129,6 @@
       }
 
       alert(`Status atualizado para ${novoStatus.toUpperCase()}!`);
-    }
-
-    // Função para abrir rotas no Google Maps
-    function abrirRotas(lat, lng) {
-      if (!lat || !lng) {
-        alert("Localização não disponível para este pet.");
-        return;
-      }
-
-      // Se possível, usa a localização atual como origem
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-          (position) => {
-            const origemLat = position.coords.latitude;
-            const origemLng = position.coords.longitude;
-            const url = `https://www.google.com/maps/dir/?api=1&origin=${origemLat},${origemLng}&destination=${lat},${lng}`;
-            window.open(url, "_blank");
-          },
-          () => {
-            // Se não conseguir capturar, usa "Minha Localização"
-            const url = `https://www.google.com/maps/dir/?api=1&origin=Minha+Localização&destination=${lat},${lng}`;
-            window.open(url, "_blank");
-          }
-        );
-      } else {
-        // Fallback
-        const url = `https://www.google.com/maps/dir/?api=1&origin=Minha+Localização&destination=${lat},${lng}`;
-        window.open(url, "_blank");
-      }
     }
 
     // Pega o id da URL
