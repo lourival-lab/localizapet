@@ -31,10 +31,14 @@
   </div>
 
   <script>
+    // Detecta ambiente: localhost ou produção
+    const API_URL = window.location.hostname === "localhost"
+      ? "http://localhost:3000"
+      : "https://pets-server-8yxb.onrender.com";
+
     async function carregarPet(id) {
       try {
-        // agora usa caminho relativo
-        const res = await fetch(`/pets/${id}`);
+        const res = await fetch(`${API_URL}/pets/${id}`);
         if (!res.ok) throw new Error("Erro ao buscar pet");
         const data = await res.json();
 
@@ -53,7 +57,7 @@
         const rotasUrl = `https://www.google.com/maps/dir/?api=1&origin=Minha+Localização&destination=${data.latitude},${data.longitude}`;
 
         const fotoUrl = data.foto_url
-          ? data.foto_url   // já vem como /uploads/... do backend
+          ? `${API_URL}${data.foto_url}`
           : "img/pet-default.png";
 
         container.innerHTML = `
@@ -96,7 +100,7 @@
       }
 
       try {
-        const res = await fetch(`/pets/${id}`, {
+        const res = await fetch(`${API_URL}/pets/${id}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(updateData)
