@@ -56,6 +56,11 @@
 
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script>
+    // Detecta ambiente: localhost ou produção
+    const API_URL = window.location.hostname === "localhost"
+      ? "http://localhost:3000"
+      : "https://pets-server-8yxb.onrender.com";
+
     const map = L.map('map').setView([-27.0, -49.3], 10);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '© OpenStreetMap'
@@ -63,15 +68,14 @@
 
     async function carregarPets() {
       try {
-        // agora usa caminho relativo
-        const res = await fetch("/pets");
+        const res = await fetch(`${API_URL}/pets`);
         if (!res.ok) throw new Error("Erro ao buscar pets");
         const pets = await res.json();
 
         pets.forEach(pet => {
           if (pet.latitude && pet.longitude) {
             const fotoUrl = pet.foto_url
-              ? pet.foto_url   // já vem como /uploads/... do backend
+              ? `${API_URL}${pet.foto_url}`
               : "img/pet-default.png";
 
             let statusClass = "";
