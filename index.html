@@ -56,24 +56,14 @@
       height: 80vh;
       width: 100%;
     }
-    /* estilos dos ícones */
     .pet-icon {
       border-radius: 50%;
       border: 2px solid #2E7D32;
       background-color: white;
     }
-    .status-red {
-      background-color: rgba(255, 0, 0, 0.3);
-      border: 2px solid red !important;
-    }
-    .status-green {
-      background-color: rgba(0, 255, 0, 0.3);
-      border: 2px solid green !important;
-    }
-    .status-yellow {
-      background-color: rgba(255, 255, 0, 0.3);
-      border: 2px solid gold !important;
-    }
+    .status-red { border: 2px solid red !important; }
+    .status-green { border: 2px solid green !important; }
+    .status-yellow { border: 2px solid gold !important; }
   </style>
 </head>
 <body>
@@ -84,7 +74,6 @@
   </nav>
   <div id="map"></div>
 
-  <!-- Botão flutuante -->
   <a href="cadastro.html" class="botao-flutuante">+</a>
 
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
@@ -96,19 +85,17 @@
 
     async function carregarPets() {
       try {
-        // ajuste para a URL do seu backend
-        const res = await fetch("http://localhost:3000/pets");
+        // agora usa caminho relativo
+        const res = await fetch("/pets");
         if (!res.ok) throw new Error("Erro ao buscar pets");
         const pets = await res.json();
 
         pets.forEach(pet => {
           if (pet.latitude && pet.longitude) {
-            // usa foto_url do backend ou padrão
             const fotoUrl = pet.foto_url
-              ? `http://localhost:3000${pet.foto_url}`
+              ? pet.foto_url   // já vem como /uploads/... do backend
               : "img/pet-default.png";
 
-            // define classe conforme status
             let statusClass = "";
             if (pet.status === "Perdido") {
               statusClass = "status-red";
