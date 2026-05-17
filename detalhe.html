@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🐾 DETALHES DO PET</title>
+  <style>
+    body { font-family: Arial, sans-serif; background:#E8F5E9; margin:0; padding:0; }
+    header { background:#C8E6C9; color:#2E7D32; padding:15px; text-align:center; font-size:24px; font-weight:bold; }
+    nav { text-align:center; padding:10px; background:#2E7D32; }
+    nav a { color:white; margin:0 10px; text-decoration:none; font-weight:bold; }
+    .container { max-width:600px; margin:20px auto; background:#fff; padding:20px; border-radius:8px; box-shadow:0 2px 6px rgba(0,0,0,0.2); }
+    img { max-width:100%; border-radius:8px; margin:10px 0; }
+    h2 { color:#2E7D32; margin-top:0; }
+    p { font-size:16px; margin:5px 0; }
+    .voltar, .btn-status { display:inline-block; margin-top:15px; padding:8px 16px; background:#2E7D32; color:white; text-decoration:none; border:none; border-radius:4px; font-weight:bold; cursor:pointer; }
+    .voltar:hover, .btn-status:hover { background:#1B5E20; }
+    .btn-status[disabled] { background:#9E9E9E; cursor:not-allowed; }
+  </style>
+</head>
+<body>
+  <header>🐾 Detalhes do Pet</header>
+  <nav>
+    <a href="index.html">Início</a>
+    <a href="cadastro.html">Cadastrar Pet</a>
+    <a href="lista.html">Lista de Pets</a>
+  </nav>
+
+  <div class="container" id="detalhesPet">
+    <p>Carregando informações do pet...</p>
+  </div>
+
+  <script>
+    async function carregarPet(id) {
+      try {
+        // ajuste para a URL do seu backend
+        const res = await fetch(`http://localhost:3000/pets/${id}`);
+        if (!res.ok) throw new Error("Erro ao buscar pet");
+        const data = await res.json();
+
+        const container = document.getElementById("detalhesPet");
+
+        // Botões de status
+        let statusBtn = "";
+        if (data.status === "Encontrado") {
+          statusBtn = `<button class="btn-status" disabled>✅ Já marcado como Encontrado</button>`;
+        } else {
+          statusBtn = `
+            <button class="btn-status" onclick="alterarStatus(${data.id}, 'Visto')">👀 Marcar como Visto</button>
+            <button class="btn-status" onclick="alterarStatus(${data.id}, 'Encontrado')">✅ Marcar como Encontrado</button>
+          `;
+        }
+
+        // Link de rotas
+        const rotasUrl = `https://www.google.com/maps/dir/?api=1&origin=Minha+Localização&destination=${data.latitude},${data.longitude}`;
+
+        // usa foto_url do backend ou padrão
+        const fotoUrl = data.foto_url
+          ? `http://localhost:3000${data.foto_url}`
+          : "img/pet-default.png";
+
+        container.innerHTML = `
+          <h2>${data.nome || "Sem nome"}</h2>
+          <img src="${fotoUrl}" alt="Foto de ${data.nome || 'Pet'}">
+          <p><b>Tipo:</b> ${data.tipo || "Não informado"}</p>
+          <p><b>Cor:</b> ${data.cor || "Não informado"}</p>
+          <p><b>Status:</b> <span id="statusPet">${data.status || "Não informado"}</span></p>
+          <p><b>Contato:</b> ${data.contato || "Não informado"}</p>
+          <p><b>Localização:</b> <span id="localPet">${data.latitude}, ${data.longitude}</span></p>
+          <a href="${rotasUrl}" target="_blank" class="btn-status">🗺️ Rotas</a>
+          ${statusBtn}
+          <a href="index.html" class="voltar">⬅ Voltar ao início</a>
+        `;
+      } catch (err) {
+        document.getElementById("detalhesPet").innerHTML = "<p>Erro ao carregar informações do pet.</p>";
+      }
+    }
+
+    async function alterarStatus(id, novoStatus) {
+      let lat = null;
+      let lng = null;
+
+      if (novoStatus === "Visto" && navigator.geolocation) {
+        try {
+          const pos = await new Promise((resolve, reject) => {
+            navigator.geolocation.getCurrentPosition(resolve, reject);
+          });
+          lat = pos.coords.latitude;
+          lng = pos.coords.longitude;
+        } catch (e) {
+          console.warn("Não foi possível capturar localização:", e);
+        }
+      }
+
+      const updateData = { status: novoStatus };
+      if (lat !== null && lng !== null) {
+        updateData.latitude = lat;
+        updateData.longitude = lng;
+      }
+      if (novoStatus === "Encontrado") {
+        updateData.expires_at = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
+      }
+
+      try {
+        const res = await fetch(`http://localhost:3000/pets/${id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(updateData)
+        });
+        if (!res.ok) throw new Error("Erro ao atualizar status");
+
+        document.getElementById("statusPet").textContent = novoStatus;
+        if (lat !== null && lng !== null) {
+          document.getElementById("localPet").textContent = `${lat}, ${lng}`;
+        }
+        alert(`Status atualizado para ${novoStatus.toUpperCase()}!`);
+      } catch (err) {
+        alert("Erro ao atualizar status: " + err.message);
+      }
+    }
+
+    // Pega o id da URL
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get("id");
+    if (id) {
+      carregarPet(id);
+    } else {
+      document.getElementById("detalhesPet").innerHTML = "<p>ID do pet não informado.</p>";
+    }
+  </script>
+</body>
+</html>

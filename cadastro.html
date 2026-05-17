@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>📋 CADASTRO DE PET</title>
+  <style>
+    body{font-family:Arial;background:#E8F5E9;margin:0;padding:0;}
+    header{background:#C8E6C9;color:#2E7D32;padding:15px;text-align:center;font-size:24px;font-weight:bold;}
+    nav{text-align:center;padding:10px;background:#2E7D32;}
+    nav a{color:white;margin:0 10px;text-decoration:none;font-weight:bold;}
+    form{max-width:400px;margin:20px auto;background:#fff;padding:20px;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,0.2);}
+    label{display:block;margin-top:10px;font-weight:bold;}
+    input,select{width:100%;padding:8px;margin-top:5px;border:1px solid #ccc;border-radius:4px;}
+    button{margin-top:15px;padding:10px;background:#2E7D32;color:white;border:none;border-radius:4px;font-size:16px;cursor:pointer;}
+    button:hover{background:#1B5E20;}
+    .alert{color:red;font-size:14px;margin-top:10px;}
+    #previewFoto img {max-width:200px;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,0.2);}
+  </style>
+</head>
+<body>
+  <header>📋 CADASTRO DE PET</header>
+  <nav>
+    <a href="index.html">Início</a>
+    <a href="lista.html">Lista de Pets</a>
+    <a href="mapa.html">Mapa</a>
+  </nav>
+
+  <form id="formCadastro">
+    <label for="nome">Nome</label>
+    <input type="text" id="nome" required>
+
+    <label for="tipo">Tipo</label>
+    <select id="tipo" required>
+      <option value="">Selecione...</option>
+      <option value="Cachorro">🐶 Cachorro</option>
+      <option value="Gato">🐱 Gato</option>
+    </select>
+
+    <label for="cor">Cor</label>
+    <input type="text" id="cor" required>
+
+    <label for="contato">Contato</label>
+    <input type="text" id="contato" required>
+
+    <label for="foto">Foto do Pet</label>
+    <button type="button" onclick="document.getElementById('foto').click()">Selecionar Foto</button>
+    <input type="file" id="foto" accept="image/*" style="display:none;" required>
+    <div id="previewFoto"></div>
+
+    <label for="status">Status</label>
+    <select id="status" required>
+      <option value="">Selecione...</option>
+      <option value="Perdido">❌ Perdido</option>
+      <option value="Visto">👀 Visto</option>
+      <option value="Encontrado">✅ Encontrado</option>      
+    </select>
+
+    <label for="latitude">Latitude</label>
+    <input type="text" id="latitude">
+
+    <label for="longitude">Longitude</label>
+    <input type="text" id="longitude">
+
+    <div id="alertaLocalizacao" class="alert"></div>
+
+    <button type="submit">Cadastrar</button>
+  </form>
+
+  <script>
+    let latitude = null;
+    let longitude = null;
+
+    // Captura localização automática
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          latitude = pos.coords.latitude;
+          longitude = pos.coords.longitude;
+          document.getElementById("latitude").value = latitude;
+          document.getElementById("longitude").value = longitude;
+        },
+        () => {
+          document.getElementById("alertaLocalizacao").textContent =
+            "Não foi possível capturar sua localização automaticamente. Preencha manualmente.";
+        }
+      );
+    }
+
+    // Preview da foto
+    document.getElementById("foto").addEventListener("change", function() {
+      const file = this.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          document.getElementById("previewFoto").innerHTML =
+            `<img src="${e.target.result}" alt="Preview da foto">`;
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    async function cadastrarPet(event) {
+      event.preventDefault();
+
+      const nome = document.getElementById("nome").value;
+      const tipo = document.getElementById("tipo").value;
+      const cor = document.getElementById("cor").value;
+      const contato = document.getElementById("contato").value;
+      const status = document.getElementById("status").value;
+      const lat = latitude || parseFloat(document.getElementById("latitude").value);
+      const lng = longitude || parseFloat(document.getElementById("longitude").value);
+
+      const fotoFile = document.getElementById("foto").files[0];
+      if (!fotoFile) {
+        alert("Selecione uma foto do pet antes de cadastrar.");
+        return;
+      }
+
+      // Usando FormData para enviar arquivo bruto
+      const formData = new FormData();
+      formData.append("nome", nome);
+      formData.append("tipo", tipo);
+      formData.append("cor", cor);
+      formData.append("contato", contato);
+      formData.append("status", status);
+      formData.append("latitude", lat);
+      formData.append("longitude", lng);
+      formData.append("foto", fotoFile);
+
+      try {
+        const res = await fetch("https://pets-server-8yxb.onrender.com/pets", {
+          method: "POST",
+          body: formData
+        });
+
+        if (!res.ok) {
+          throw new Error("Erro ao cadastrar pet");
+        }
+
+        alert("Pet cadastrado com sucesso!");
+        window.location.href = "lista.html";
+      } catch (err) {
+        alert("Erro: " + err.message);
+      }
+    }
+
+    document.getElementById("formCadastro").addEventListener("submit", cadastrarPet);
+  </script>
+</body>
+</html>

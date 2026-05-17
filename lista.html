@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🐶 Lista de Pets</title>
+  <style>
+    body{font-family:Arial;background:#E8F5E9;margin:0;padding:0;}
+    header{background:#C8E6C9;color:#2E7D32;padding:15px;text-align:center;font-size:24px;font-weight:bold;}
+    nav{text-align:center;padding:10px;background:#2E7D32;}
+    nav a{color:white;margin:0 10px;text-decoration:none;font-weight:bold;}
+    #listaPets{display:flex;flex-wrap:wrap;justify-content:center;padding:20px;}
+    .pet-card{background:#fff;border-radius:8px;padding:15px;margin:10px;max-width:250px;text-align:center;box-shadow:0 2px 6px rgba(0,0,0,0.2);}
+    .pet-card img{width:200px;height:200px;object-fit:cover;border-radius:8px;}
+    .status-perdido{color:red;font-weight:bold;}
+    .status-encontrado{color:green;font-weight:bold;}
+    .status-visto{color:orange;font-weight:bold;}
+  </style>
+</head>
+<body>
+  <header>🐶 PETS CADASTRADOS 🐱</header>
+  <nav>
+    <a href="index.html">Início</a>
+    <a href="cadastro.html">Cadastrar Pet</a>
+    <a href="mapa.html">Mapa</a>
+  </nav>
+  <div id="listaPets">Carregando pets...</div>
+
+  <script>
+    async function carregarLista() {
+      try {
+        // ajuste para a URL do seu backend
+        const res = await fetch("http://localhost:3000/pets"); 
+        if (!res.ok) throw new Error("Erro ao buscar pets");
+        const data = await res.json();
+
+        if (!data || data.length === 0) {
+          document.getElementById("listaPets").innerHTML = "<p>Nenhum pet cadastrado.</p>";
+          return;
+        }
+
+        document.getElementById("listaPets").innerHTML = "";
+        data.forEach(pet => {
+          let statusClass = "";
+          let statusLabel = "";
+
+          if (pet.status === "Encontrado") {
+            statusClass = "status-encontrado";
+            statusLabel = "✅ Encontrado";
+          } else if (pet.status === "Visto") {
+            statusClass = "status-visto";
+            statusLabel = "👀 Visto";
+          } else {
+            statusClass = "status-perdido";
+            statusLabel = "❌ Perdido";
+          }
+
+          // usa foto_url do backend ou padrão
+          const fotoUrl = pet.foto_url
+            ? `http://localhost:3000${pet.foto_url}`
+            : "img/pet-default.png";
+
+          document.getElementById("listaPets").innerHTML += `
+            <div class="pet-card">
+              <h3>${pet.nome || "Sem nome"}</h3>
+              <img src="${fotoUrl}" alt="Foto de ${pet.nome || 'Pet'}">
+              <p><b>Tipo:</b> ${pet.tipo || "Não informado"}</p>
+              <p><b>Cor:</b> ${pet.cor || "Não informado"}</p>
+              <p class="${statusClass}">${statusLabel}</p>
+              <p><b>Contato:</b> ${pet.contato || "Não informado"}</p>
+              <a href="detalhe.html?id=${pet.id}">🔎 Ver detalhes</a>
+            </div>
+          `;
+        });
+      } catch (err) {
+        document.getElementById("listaPets").innerHTML = "<p>Erro ao carregar pets.</p>";
+      }
+    }
+
+    carregarLista();
+  </script>
+</body>
+</html>
