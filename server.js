@@ -10,13 +10,29 @@ const PORT = process.env.PORT || 3000;
 // Middleware para JSON
 app.use(express.json());
 
-// Servir arquivos estáticos (HTML, CSS, JS, imagens)
+// Servir arquivos estáticos (CSS, JS, imagens)
 app.use(express.static(__dirname));
 app.use("/uploads", express.static("uploads"));
 
-// Rota principal para entregar index.html
+// Rotas para páginas HTML
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "index.html"));
+});
+
+app.get("/cadastro", (req, res) => {
+  res.sendFile(path.join(__dirname, "cadastro.html"));
+});
+
+app.get("/detalhe", (req, res) => {
+  res.sendFile(path.join(__dirname, "detalhe.html"));
+});
+
+app.get("/lista", (req, res) => {
+  res.sendFile(path.join(__dirname, "lista.html"));
+});
+
+app.get("/mapa", (req, res) => {
+  res.sendFile(path.join(__dirname, "mapa.html"));
 });
 
 // Configuração do Multer
