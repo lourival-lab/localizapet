@@ -68,6 +68,11 @@
   </form>
 
   <script>
+    // Detecta ambiente: localhost ou produção
+    const API_URL = window.location.hostname === "localhost"
+      ? "http://localhost:3000"
+      : "https://pets-server-8yxb.onrender.com";
+
     let latitude = null;
     let longitude = null;
 
@@ -117,7 +122,6 @@
         return;
       }
 
-      // Usando FormData para enviar arquivo bruto
       const formData = new FormData();
       formData.append("nome", nome);
       formData.append("tipo", tipo);
@@ -129,7 +133,7 @@
       formData.append("foto", fotoFile);
 
       try {
-        const res = await fetch("https://pets-server-8yxb.onrender.com/pets", {
+        const res = await fetch(`${API_URL}/pets`, {
           method: "POST",
           body: formData
         });
