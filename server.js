@@ -4,7 +4,12 @@ const { Pool } = require("pg");
 require("dotenv").config();
 
 const app = express();
-const port = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, () => {
+  console.log(`Servidor rodando na porta ${PORT}`);
+});
+
 
 // Configuração do Multer
 const storage = multer.diskStorage({
