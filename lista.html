@@ -27,10 +27,14 @@
   <div id="listaPets">Carregando pets...</div>
 
   <script>
+    // Detecta ambiente: localhost ou produção
+    const API_URL = window.location.hostname === "localhost"
+      ? "http://localhost:3000"
+      : "https://pets-server-8yxb.onrender.com";
+
     async function carregarLista() {
       try {
-        // ajuste para a URL do seu backend
-        const res = await fetch("http://localhost:3000/pets"); 
+        const res = await fetch(`${API_URL}/pets`); 
         if (!res.ok) throw new Error("Erro ao buscar pets");
         const data = await res.json();
 
@@ -55,9 +59,8 @@
             statusLabel = "❌ Perdido";
           }
 
-          // usa foto_url do backend ou padrão
           const fotoUrl = pet.foto_url
-            ? `http://localhost:3000${pet.foto_url}`
+            ? `${API_URL}${pet.foto_url}`   // concatena com API_URL
             : "img/pet-default.png";
 
           document.getElementById("listaPets").innerHTML += `

@@ -1,10 +1,51 @@
 const express = require("express");
 const multer = require("multer");
 const { Pool } = require("pg");
+const path = require("path");
+const cors = require("cors");   // 🔹 Importa CORS
 require("dotenv").config();
 
 const app = express();
-const port = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3000;
+
+// 🔹 Configuração do CORS
+app.use(cors({
+  origin: [
+    "https://ajudeumpetperdido.com.br",   // seu domínio
+    "https://lourival-lab.github.io",    // GitHub Pages
+    "http://localhost:3000"              // ambiente local
+  ],
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  allowedHeaders: ["Content-Type"]
+}));
+
+// Middleware para JSON
+app.use(express.json());
+
+// Servir arquivos estáticos (CSS, JS, imagens)
+app.use(express.static(__dirname));
+app.use("/uploads", express.static("uploads"));
+
+// Rotas para páginas HTML
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "index.html"));
+});
+
+app.get("/cadastro", (req, res) => {
+  res.sendFile(path.join(__dirname, "cadastro.html"));
+});
+
+app.get("/detalhe", (req, res) => {
+  res.sendFile(path.join(__dirname, "detalhe.html"));
+});
+
+app.get("/lista", (req, res) => {
+  res.sendFile(path.join(__dirname, "lista.html"));
+});
+
+app.get("/mapa", (req, res) => {
+  res.sendFile(path.join(__dirname, "mapa.html"));
+});
 
 // Configuração do Multer
 const storage = multer.diskStorage({
@@ -22,13 +63,7 @@ const pool = new Pool({
   ssl: { rejectUnauthorized: false }
 });
 
-// Middleware para JSON
-app.use(express.json());
-
-// Servir arquivos estáticos da pasta uploads
-app.use("/uploads", express.static("uploads"));
-
-// Rota GET /pets
+// Rotas da API
 app.get("/pets", async (req, res) => {
   try {
     const result = await pool.query("SELECT * FROM pets ORDER BY id DESC");
@@ -38,7 +73,6 @@ app.get("/pets", async (req, res) => {
   }
 });
 
-// Rota GET /pets/:id
 app.get("/pets/:id", async (req, res) => {
   try {
     const { id } = req.params;
@@ -49,7 +83,6 @@ app.get("/pets/:id", async (req, res) => {
   }
 });
 
-// Rota POST /pets (com foto)
 app.post("/pets", upload.single("foto"), async (req, res) => {
   try {
     const { nome, tipo, cor, contato, status, latitude, longitude } = req.body;
@@ -67,7 +100,6 @@ app.post("/pets", upload.single("foto"), async (req, res) => {
   }
 });
 
-// Rota PUT /pets/:id
 app.put("/pets/:id", async (req, res) => {
   try {
     const { id } = req.params;
@@ -82,6 +114,7 @@ app.put("/pets/:id", async (req, res) => {
   }
 });
 
-app.listen(port, () => {
-  console.log(`Servidor rodando em http://localhost:${port}`);
+// Iniciar servidor
+app.listen(PORT, () => {
+  console.log(`Servidor rodando na porta ${PORT}`);
 });

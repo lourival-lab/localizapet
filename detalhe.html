@@ -31,16 +31,19 @@
   </div>
 
   <script>
+    // Detecta ambiente: localhost ou produção
+    const API_URL = window.location.hostname === "localhost"
+      ? "http://localhost:3000"
+      : "https://pets-server-8yxb.onrender.com";
+
     async function carregarPet(id) {
       try {
-        // ajuste para a URL do seu backend
-        const res = await fetch(`http://localhost:3000/pets/${id}`);
+        const res = await fetch(`${API_URL}/pets/${id}`);
         if (!res.ok) throw new Error("Erro ao buscar pet");
         const data = await res.json();
 
         const container = document.getElementById("detalhesPet");
 
-        // Botões de status
         let statusBtn = "";
         if (data.status === "Encontrado") {
           statusBtn = `<button class="btn-status" disabled>✅ Já marcado como Encontrado</button>`;
@@ -51,12 +54,10 @@
           `;
         }
 
-        // Link de rotas
         const rotasUrl = `https://www.google.com/maps/dir/?api=1&origin=Minha+Localização&destination=${data.latitude},${data.longitude}`;
 
-        // usa foto_url do backend ou padrão
         const fotoUrl = data.foto_url
-          ? `http://localhost:3000${data.foto_url}`
+          ? `${API_URL}${data.foto_url}`
           : "img/pet-default.png";
 
         container.innerHTML = `
@@ -97,12 +98,9 @@
         updateData.latitude = lat;
         updateData.longitude = lng;
       }
-      if (novoStatus === "Encontrado") {
-        updateData.expires_at = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
-      }
 
       try {
-        const res = await fetch(`http://localhost:3000/pets/${id}`, {
+        const res = await fetch(`${API_URL}/pets/${id}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(updateData)
@@ -119,7 +117,6 @@
       }
     }
 
-    // Pega o id da URL
     const params = new URLSearchParams(window.location.search);
     const id = params.get("id");
     if (id) {

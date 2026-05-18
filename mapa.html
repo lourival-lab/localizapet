@@ -35,24 +35,14 @@
       height: 80vh;
       width: 100%;
     }
-    /* estilos dos ícones */
     .pet-icon {
       border-radius: 50%;
       border: 2px solid #2E7D32;
       background-color: white;
     }
-    .status-red {
-      background-color: rgba(255, 0, 0, 0.3);
-      border: 2px solid red !important;
-    }
-    .status-green {
-      background-color: rgba(0, 255, 0, 0.3);
-      border: 2px solid green !important;
-    }
-    .status-yellow {
-      background-color: rgba(255, 255, 0, 0.3);
-      border: 2px solid gold !important;
-    }
+    .status-red { border: 2px solid red !important; }
+    .status-green { border: 2px solid green !important; }
+    .status-yellow { border: 2px solid gold !important; }
   </style>
 </head>
 <body>
@@ -66,6 +56,11 @@
 
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script>
+    // Detecta ambiente: localhost ou produção
+    const API_URL = window.location.hostname === "localhost"
+      ? "http://localhost:3000"
+      : "https://pets-server-8yxb.onrender.com";
+
     const map = L.map('map').setView([-27.0, -49.3], 10);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '© OpenStreetMap'
@@ -73,19 +68,16 @@
 
     async function carregarPets() {
       try {
-        // ajuste para a URL do seu backend
-        const res = await fetch("http://localhost:3000/pets");
+        const res = await fetch(`${API_URL}/pets`);
         if (!res.ok) throw new Error("Erro ao buscar pets");
         const pets = await res.json();
 
         pets.forEach(pet => {
           if (pet.latitude && pet.longitude) {
-            // usa foto_url do backend ou padrão
             const fotoUrl = pet.foto_url
-              ? `http://localhost:3000${pet.foto_url}`
+              ? `${API_URL}${pet.foto_url}`
               : "img/pet-default.png";
 
-            // define classe conforme status
             let statusClass = "";
             if (pet.status === "Perdido") {
               statusClass = "status-red";
