@@ -2,10 +2,22 @@ const express = require("express");
 const multer = require("multer");
 const { Pool } = require("pg");
 const path = require("path");
+const cors = require("cors");   // 🔹 Importa CORS
 require("dotenv").config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// 🔹 Configuração do CORS
+app.use(cors({
+  origin: [
+    "https://ajudeumpetperdido.com.br",   // seu domínio
+    "https://lourival-lab.github.io",    // GitHub Pages
+    "http://localhost:3000"              // ambiente local
+  ],
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  allowedHeaders: ["Content-Type"]
+}));
 
 // Middleware para JSON
 app.use(express.json());
