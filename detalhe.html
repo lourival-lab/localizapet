@@ -31,7 +31,6 @@
   </div>
 
   <script>
-    // Detecta ambiente: localhost ou produção
     const API_URL = window.location.hostname === "localhost"
       ? "http://localhost:3000"
       : "https://pets-server-8yxb.onrender.com";
@@ -56,8 +55,9 @@
 
         const rotasUrl = `https://www.google.com/maps/dir/?api=1&origin=Minha+Localização&destination=${data.latitude},${data.longitude}`;
 
+        // ✅ Correção: usar direto o link do Cloudinary
         const fotoUrl = data.foto_url
-          ? `${API_URL}${data.foto_url}`
+          ? data.foto_url
           : "img/pet-default.png";
 
         container.innerHTML = `

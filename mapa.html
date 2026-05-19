@@ -56,7 +56,6 @@
 
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script>
-    // Detecta ambiente: localhost ou produção
     const API_URL = window.location.hostname === "localhost"
       ? "http://localhost:3000"
       : "https://pets-server-8yxb.onrender.com";
@@ -74,8 +73,9 @@
 
         pets.forEach(pet => {
           if (pet.latitude && pet.longitude) {
+            // ✅ Correção: usar direto o link do Cloudinary
             const fotoUrl = pet.foto_url
-              ? `${API_URL}${pet.foto_url}`
+              ? pet.foto_url
               : "img/pet-default.png";
 
             let statusClass = "";

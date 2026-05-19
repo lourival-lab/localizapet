@@ -27,7 +27,6 @@
   <div id="listaPets">Carregando pets...</div>
 
   <script>
-    // Detecta ambiente: localhost ou produção
     const API_URL = window.location.hostname === "localhost"
       ? "http://localhost:3000"
       : "https://pets-server-8yxb.onrender.com";
@@ -59,8 +58,9 @@
             statusLabel = "❌ Perdido";
           }
 
+          // ✅ Correção: usar direto o link do Cloudinary
           const fotoUrl = pet.foto_url
-            ? `${API_URL}${pet.foto_url}`   // concatena com API_URL
+            ? pet.foto_url
             : "img/pet-default.png";
 
           document.getElementById("listaPets").innerHTML += `
