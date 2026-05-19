@@ -86,7 +86,9 @@ app.get("/pets/:id", async (req, res) => {
 app.post("/pets", upload.single("foto"), async (req, res) => {
   try {
     const { nome, tipo, cor, contato, status, latitude, longitude } = req.body;
-    const fotoPath = req.file ? `/uploads/${req.file.filename}` : null;
+    const fotoPath = req.file 
+      ? `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}` 
+      : null;
 
     const result = await pool.query(
       `INSERT INTO pets (nome, tipo, cor, contato, status, latitude, longitude, foto_url)
