@@ -35,6 +35,7 @@
       <option value="">Selecione...</option>
       <option value="Cachorro">🐶 Cachorro</option>
       <option value="Gato">🐱 Gato</option>
+      <option value="Outro">🐾 Outro</option>
     </select>
 
     <label for="cor">Cor</label>
@@ -44,8 +45,8 @@
     <input type="text" id="contato" required>
 
     <label for="foto">Foto do Pet</label>
-    <button type="button" onclick="document.getElementById('foto').click()">Selecionar Foto</button>
-    <input type="file" id="foto" accept="image/*" style="display:none;" required>
+    <!-- ✅ Agora o input permite câmera ou galeria -->
+    <input type="file" id="foto" name="foto" accept="image/*" capture="environment" required>
     <div id="previewFoto"></div>
 
     <label for="status">Status</label>
@@ -68,7 +69,6 @@
   </form>
 
   <script>
-    // Detecta ambiente: localhost ou produção
     const API_URL = window.location.hostname === "localhost"
       ? "http://localhost:3000"
       : "https://pets-server-8yxb.onrender.com";
@@ -76,7 +76,6 @@
     let latitude = null;
     let longitude = null;
 
-    // Captura localização automática
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (pos) => {
