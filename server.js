@@ -2,7 +2,7 @@ const express = require("express");
 const multer = require("multer");
 const { Pool } = require("pg");
 const path = require("path");
-const cors = require("cors");   // 🔹 Importa CORS
+const cors = require("cors");
 require("dotenv").config();
 
 const app = express();
@@ -22,42 +22,47 @@ app.use(cors({
 // Middleware para JSON
 app.use(express.json());
 
-// Servir arquivos estáticos (CSS, JS, imagens)
+// Servir arquivos estáticos (CSS, JS, imagens locais)
 app.use(express.static(__dirname));
-app.use("/uploads", express.static("uploads"));
 
 // Rotas para páginas HTML
 app.get("/", (req, res) => {
   res.sendFile(path.join(__dirname, "index.html"));
 });
-
 app.get("/cadastro", (req, res) => {
   res.sendFile(path.join(__dirname, "cadastro.html"));
 });
-
 app.get("/detalhe", (req, res) => {
   res.sendFile(path.join(__dirname, "detalhe.html"));
 });
-
 app.get("/lista", (req, res) => {
   res.sendFile(path.join(__dirname, "lista.html"));
 });
-
 app.get("/mapa", (req, res) => {
   res.sendFile(path.join(__dirname, "mapa.html"));
 });
 
-// Configuração do Multer
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, "uploads/"),
-  filename: (req, file, cb) => {
-    const uniqueName = Date.now() + "-" + file.originalname;
-    cb(null, uniqueName);
+// 🔹 Configuração do Cloudinary
+const cloudinary = require("cloudinary").v2;
+const { CloudinaryStorage } = require("multer-storage-cloudinary");
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET
+});
+
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: "pets", // pasta no Cloudinary
+    allowed_formats: ["jpg", "png", "jpeg"]
   }
 });
+
 const upload = multer({ storage });
 
-// Conexão com Neon/Postgres
+// 🔹 Conexão com Neon/Postgres
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: { rejectUnauthorized: false }
@@ -86,14 +91,12 @@ app.get("/pets/:id", async (req, res) => {
 app.post("/pets", upload.single("foto"), async (req, res) => {
   try {
     const { nome, tipo, cor, contato, status, latitude, longitude } = req.body;
-    const fotoPath = req.file 
-      ? `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}` 
-      : null;
+    const fotoUrl = req.file ? req.file.path : null; // URL pública do Cloudinary
 
     const result = await pool.query(
       `INSERT INTO pets (nome, tipo, cor, contato, status, latitude, longitude, foto_url)
        VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING *`,
-      [nome, tipo, cor, contato, status, latitude, longitude, fotoPath]
+      [nome, tipo, cor, contato, status, latitude, longitude, fotoUrl]
     );
 
     res.status(201).json(result.rows[0]);
