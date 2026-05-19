@@ -78,7 +78,6 @@
 
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script>
-    // Detecta ambiente: localhost ou produção
     const API_URL = window.location.hostname === "localhost"
       ? "http://localhost:3000"
       : "https://pets-server-8yxb.onrender.com";
@@ -96,9 +95,8 @@
 
         pets.forEach(pet => {
           if (pet.latitude && pet.longitude) {
-            const fotoUrl = pet.foto_url
-              ? `${API_URL}${pet.foto_url}`
-              : "img/pet-default.png";
+            // ✅ Correção: usar direto o link do Cloudinary
+            const fotoUrl = pet.foto_url ? pet.foto_url : "img/pet-default.png";
 
             let statusClass = "";
             if (pet.status === "Perdido") {
@@ -121,7 +119,7 @@
               <b>${pet.nome || "Sem nome"}</b><br>
               ${pet.tipo || "Não informado"}<br>
               Status: ${pet.status || "Não informado"}<br>
-              <img src="${fotoUrl}" width="100"><br>
+              <img src="${fotoUrl}" style="max-width:120px; border-radius:8px;"><br>
               <a href="detalhe.html?id=${pet.id}">Ver detalhes</a>
             `);
           }
