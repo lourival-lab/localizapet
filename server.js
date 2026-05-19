@@ -20,7 +20,6 @@ app.use(cors({
 }));
 
 // Middleware para JSON
-app.use(express.json());
 
 // Servir arquivos estáticos (CSS, JS, imagens locais)
 app.use(express.static(__dirname));
