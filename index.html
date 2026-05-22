@@ -3,8 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>🐾 Localiza Pet</title>
+  <title>AJUDE A ENCONTRAR UM PET PERDIDO</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+  
+  <!-- Favicon usando a logo do Cloudinary -->
+  <link rel="icon" type="image/png" href="https://res.cloudinary.com/dnjtzhd3z/image/upload/f_png/v1779476116/logo_bn4yo4.png"/>
+  
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -12,34 +16,23 @@
       margin: 0;
       padding: 0;
     }
-    .botao-flutuante {
-      position: fixed;
-      bottom: 60px;
-      right: 20px;
-      width: 60px;
-      height: 60px;
-      background-color: #28a745;
-      color: white;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 32px;
-      text-decoration: none;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-      transition: background-color 0.3s ease;
-      z-index: 9999;
-    }
-    .botao-flutuante:hover {
-      background-color: #218838;
-    }
     header {
       background: #C8E6C9;
       color: #2E7D32;
       padding: 15px;
-      text-align: center;
       font-size: 24px;
       font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+    header img {
+      height: 60px; 
+      background: transparent;
+      display: block;
+      margin: 0;
+      padding: 0;
     }
     nav {
       text-align: center;
@@ -64,17 +57,58 @@
     .status-red { border: 2px solid red !important; }
     .status-green { border: 2px solid green !important; }
     .status-yellow { border: 2px solid gold !important; }
+
+    /* Estilo unificado para os botões */
+    .botao-flutuante,
+    .botao-localizacao {
+      width: 60px;
+      height: 60px;
+      background-color: #28a745;
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      text-decoration: none;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+      transition: background-color 0.3s ease;
+      z-index: 9999;
+      cursor: pointer;
+    }
+    .botao-flutuante:hover,
+    .botao-localizacao:hover {
+      background-color: #218838;
+    }
+
+    /* Coluna lateral fixa */
+    .botoes-laterais {
+      position: fixed;
+      bottom: 60px;
+      right: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      z-index: 9999;
+    }
   </style>
 </head>
 <body>
-  <header>🐶 LOCALIZAPET 🐱</header>
+  <header>
+    <img src="https://res.cloudinary.com/dnjtzhd3z/image/upload/f_png/v1779476116/logo_bn4yo4.png" alt="Logo">
+    <span>AJUDE A ENCONTRAR UM PET PERDIDO</span>
+  </header>
   <nav>
     <a href="lista.html">Lista</a>
     <a href="cadastro.html">Cadastrar Pet</a>
   </nav>
   <div id="map"></div>
 
-  <a href="cadastro.html" class="botao-flutuante">+</a>
+  <!-- Coluna de botões -->
+  <div class="botoes-laterais">
+    <div class="botao-localizacao" id="btnLocalizacao">📍</div>
+    <a href="cadastro.html" class="botao-flutuante">+</a>
+  </div>
 
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script>
@@ -82,10 +116,66 @@
       ? "http://localhost:3000"
       : "https://pets-server-8yxb.onrender.com";
 
-    const map = L.map('map').setView([-27.0, -49.3], 10);
+    const map = L.map('map').setView([0, 0], 2);
+
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '© OpenStreetMap'
     }).addTo(map);
+
+    let userMarker = null;
+    let accuracyCircle = null;
+    let ultimaPosicao = null;
+
+    if (navigator.geolocation) {
+      navigator.geolocation.watchPosition(
+        (pos) => {
+          const lat = pos.coords.latitude;
+          const lon = pos.coords.longitude;
+          const accuracy = pos.coords.accuracy;
+          ultimaPosicao = [lat, lon];
+
+          if (userMarker) {
+            userMarker.setLatLng([lat, lon]);
+          } else {
+            userMarker = L.marker([lat, lon]).addTo(map)
+              .bindPopup("📍 Você está aqui!")
+              .openPopup();
+            map.setView([lat, lon], 15);
+          }
+
+          if (accuracyCircle) {
+            accuracyCircle.setLatLng([lat, lon]);
+            accuracyCircle.setRadius(accuracy);
+          } else {
+            accuracyCircle = L.circle([lat, lon], {
+              radius: accuracy,
+              color: "blue",
+              fillColor: "#3f51b5",
+              fillOpacity: 0.2
+            }).addTo(map);
+          }
+        },
+        (err) => {
+          console.error("Erro ao obter localização:", err);
+          map.setView([-27.0, -49.3], 10);
+        },
+        {
+          enableHighAccuracy: true,
+          maximumAge: 0,
+          timeout: 10000
+        }
+      );
+    } else {
+      alert("Seu navegador não suporta geolocalização.");
+      map.setView([-27.0, -49.3], 10);
+    }
+
+    // Botão para recentralizar no usuário
+    document.getElementById("btnLocalizacao").addEventListener("click", () => {
+      if (ultimaPosicao) {
+        map.setView(ultimaPosicao, 15);
+      }
+    });
 
     async function carregarPets() {
       try {
@@ -95,17 +185,12 @@
 
         pets.forEach(pet => {
           if (pet.latitude && pet.longitude) {
-            // ✅ Correção: usar direto o link do Cloudinary
             const fotoUrl = pet.foto_url ? pet.foto_url : "img/pet-default.png";
 
             let statusClass = "";
-            if (pet.status === "Perdido") {
-              statusClass = "status-red";
-            } else if (pet.status === "Encontrado") {
-              statusClass = "status-green";
-            } else if (pet.status === "Visto") {
-              statusClass = "status-yellow";
-            }
+            if (pet.status === "Perdido") statusClass = "status-red";
+            else if (pet.status === "Encontrado") statusClass = "status-green";
+            else if (pet.status === "Visto") statusClass = "status-yellow";
 
             const petIcon = L.icon({
               iconUrl: fotoUrl,
