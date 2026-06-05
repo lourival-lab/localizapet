@@ -19,8 +19,8 @@
     header {
       background: #C8E6C9;
       color: #2E7D32;
-      padding: 15px;
-      font-size: 24px;
+      padding: 0px;
+      font-size: 18px;
       font-weight: bold;
       display: flex;
       align-items: center;
@@ -43,7 +43,7 @@
       color: white;
       margin: 0 10px;
       text-decoration: none;
-      font-weight: bold;
+      
     }
     #map {
       height: 80vh;
@@ -54,6 +54,35 @@
       border: 2px solid #2E7D32;
       background-color: white;
     }
+.logo-titulo {
+  display: flex;
+  align-items: center;   /* alinha verticalmente logo e texto */
+  justify-content: center;
+  gap: 15px;             /* espaço entre logo e texto */
+}
+
+.logo-titulo img {
+  height: 80px;          /* ajusta tamanho da logo */
+}
+
+.texto h1 {
+  margin: 0;
+  padding: 0;
+  font-size: 22px;
+  font-weight: bold;
+  line-height: 1.2;
+}
+
+.subtitulo {
+  font-family: Verdana;
+  margin-top: 0px;
+  margin: 0px;
+  padding: 0;
+  font-size: 16px;
+  color: #2E7D32;
+  font-style: italic;
+  line-height: 1.2;
+}
     .status-red { border: 2px solid red !important; }
     .status-green { border: 2px solid green !important; }
     .status-yellow { border: 2px solid gold !important; }
@@ -78,8 +107,9 @@
     }
     .botao-flutuante:hover,
     .botao-localizacao:hover {
-      background-color: #218838;
+     background-color: #218838;
     }
+
 
     /* Coluna lateral fixa */
     .botoes-laterais {
@@ -94,13 +124,21 @@
   </style>
 </head>
 <body>
+
   <header>
+  <div class="logo-titulo">
     <img src="https://res.cloudinary.com/dnjtzhd3z/image/upload/f_png/v1779476116/logo_bn4yo4.png" alt="Logo">
-    <span>AJUDE UM PET PERDIDO</span>
-  </header>
+    <div class="texto">
+      <h1>AJUDE UM PET PERDIDO</h1>
+      <p class="subtitulo">&nbsp;Porque eles precisam de nós!</p>
+    </div>
+  </div>
+</header>
+
   <nav>
-    <a href="lista.html">Lista</a>
     <a href="cadastro.html">Cadastrar Pet</a>
+    <a href="lista.html">Lista</a>
+    <a href="mapa.html">Visão geral</a>
     <a href="sobre.html">Sobre</a>
   </nav>
   <div id="map"></div>
