@@ -82,6 +82,10 @@
       adminLiberado = false;
       carregarLista();
       alert("Você saiu do modo administrador.");
+
+      // 🔹 Oculta o campo e limpa senha
+      document.getElementById("campoAdmin").style.display = "none";
+      document.getElementById("senhaAdmin").value = "";
     }
 
     async function carregarLista() {
