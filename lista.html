@@ -5,139 +5,68 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>AJUDE UM PET PERDIDO</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
-  
-  <!-- Favicon usando a logo do Cloudinary -->
   <link rel="icon" type="image/png" href="https://res.cloudinary.com/dnjtzhd3z/image/upload/f_png/v1779476116/logo_bn4yo4.png"/>
   
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #E8F5E9;
-      margin: 0;
-      padding: 0;
-    }
-    header {
-      background: #C8E6C9;
-      color: #2E7D32;
-      padding: 0px;
-      font-size: 18px;
-      font-weight: bold;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-    }
-    header img {
-      height: 60px; 
-      background: transparent;
-      display: block;
-      margin: 0;
-      padding: 0;
-    }
-    nav {
-      text-align: center;
-      padding: 10px;
-      background: #2E7D32;
-    }
-    nav a {
-      color: white;
-      margin: 0 10px;
-      text-decoration: none;
-      
-    }
-    #map {
-      height: 80vh;
-      width: 100%;
-    }
-    .pet-icon {
-      border-radius: 50%;
-      border: 2px solid #2E7D32;
-      background-color: white;
-    }
-.logo-titulo {
-  display: flex;
-  align-items: center;   /* alinha verticalmente logo e texto */
-  justify-content: center;
-  gap: 15px;             /* espaço entre logo e texto */
-}
-
-.logo-titulo img {
-  height: 80px;          /* ajusta tamanho da logo */
-}
-
-.texto h1 {
-  margin: 0;
-  padding: 0;
-  font-size: 22px;
-  font-weight: bold;
-  line-height: 1.2;
-}
-
-.subtitulo {
-  font-family: Verdana;
-  margin-top: 0px;
-  margin: 0px;
-  padding: 0;
-  font-size: 16px;
-  color: #2E7D32;
-  font-style: italic;
-  line-height: 1.2;
-}
-
-#listaPets {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 20px;              /* espaço entre os cards */
-  padding: 20px;
-}
-
-.pet-card {
-  background: #fff;
-  border: 1px solid #ccc;
-  border-radius: 10px;
-  padding: 15px;
-  text-align: center;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-}
-
-.pet-card h3 {
-  margin-top: 0;
-  color: #2E7D32;
-}
-
-.pet-card img {
-  width: 300px;
-  height: 300px;
-  object-fit: cover;     /* mantém proporção sem distorcer */
-  border-radius: 8px;
-  margin-bottom: 10px;
-}
-
-
+    body { font-family: Arial, sans-serif; background: #E8F5E9; margin: 0; padding: 0; }
+    header { background: #C8E6C9; color: #2E7D32; font-size: 18px; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 10px; }
+    header img { height: 60px; }
+    nav { text-align: center; padding: 10px; background: #2E7D32; }
+    nav a { color: white; margin: 0 10px; text-decoration: none; }
+    #map { height: 80vh; width: 100%; }
+    .pet-icon { border-radius: 50%; border: 2px solid #2E7D32; background-color: white; }
+    .logo-titulo { display: flex; align-items: center; justify-content: center; gap: 15px; }
+    .logo-titulo img { height: 80px; }
+    .texto h1 { margin: 0; font-size: 22px; font-weight: bold; line-height: 1.2; }
+    .subtitulo { font-family: Verdana; font-size: 16px; color: #2E7D32; font-style: italic; line-height: 1.2; }
+    #listaPets { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; padding: 20px; }
+    .pet-card { background: #fff; border: 1px solid #ccc; border-radius: 10px; padding: 15px; text-align: center; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
+    .pet-card h3 { margin-top: 0; color: #2E7D32; }
+    .pet-card img { width: 300px; height: 300px; object-fit: cover; border-radius: 8px; margin-bottom: 10px; }
+    .admin-area { text-align:center; margin:20px; }
   </style>
 </head>
 <body>
   <header>
-  <div class="logo-titulo">
-    <img src="https://res.cloudinary.com/dnjtzhd3z/image/upload/f_png/v1779476116/logo_bn4yo4.png" alt="Logo">
-    <div class="texto">
-      <h1>LISTA DE PETS PERDIDOS</h1>
-      <p class="subtitulo">&nbsp;Porque eles precisam de nós!</p>
+    <div class="logo-titulo">
+      <img src="https://res.cloudinary.com/dnjtzhd3z/image/upload/f_png/v1779476116/logo_bn4yo4.png" alt="Logo">
+      <div class="texto">
+        <h1>LISTA DE PETS PERDIDOS</h1>
+        <p class="subtitulo">&nbsp;Porque eles precisam de nós!</p>
+      </div>
     </div>
-  </div>
-</header>
+  </header>
   <nav>
     <a href="index.html">Início</a>
     <a href="cadastro.html">Cadastrar Pet</a>
     <a href="mapa.html">Visão geral</a>
     <a href="sobre.html">Sobre</a>
   </nav>
+
+  <!-- Área administrativa -->
+  <div class="admin-area">
+    <input type="password" id="senhaAdmin" placeholder="Senha de administrador">
+    <button onclick="liberarAdmin()">Entrar como Admin</button>
+  </div>
+
   <div id="listaPets">Carregando pets...</div>
 
   <script>
     const API_URL = window.location.hostname === "localhost"
       ? "http://localhost:3000"
       : "https://pets-server-8yxb.onrender.com";
+
+    let adminLiberado = false;
+    let senhaAdmin = "";
+
+    function liberarAdmin() {
+      senhaAdmin = document.getElementById("senhaAdmin").value;
+      if (senhaAdmin) {
+        adminLiberado = true;
+        carregarLista();
+        alert("Modo administrador ativado!");
+      }
+    }
 
     async function carregarLista() {
       try {
@@ -152,40 +81,44 @@
 
         document.getElementById("listaPets").innerHTML = "";
         data.forEach(pet => {
-          let statusClass = "";
-          let statusLabel = "";
+          const fotoUrl = pet.foto_url ? pet.foto_url : "img/pet-default.png";
 
-          if (pet.status === "Encontrado") {
-            statusClass = "status-encontrado";
-            statusLabel = "✅ Encontrado";
-          } else if (pet.status === "Visto") {
-            statusClass = "status-visto";
-            statusLabel = "👀 Visto";
-          } else {
-            statusClass = "status-perdido";
-            statusLabel = "❌ Perdido";
-          }
-
-          // ✅ Correção: usar direto o link do Cloudinary
-          const fotoUrl = pet.foto_url
-            ? pet.foto_url
-            : "img/pet-default.png";
-
-          document.getElementById("listaPets").innerHTML += `
+          let card = `
             <div class="pet-card">
               <h3>${pet.nome || "Sem nome"}</h3>
               <img src="${fotoUrl}" alt="Foto de ${pet.nome || 'Pet'}">
               <p><b>Tipo:</b> ${pet.tipo || "Não informado"}</p>
               <p><b>Cor:</b> ${pet.cor || "Não informado"}</p>
-              <p class="${statusClass}">${statusLabel}</p>
+              <p><b>Status:</b> ${pet.status || "Não informado"}</p>
               <p><b>Contato:</b> ${pet.contato || "Não informado"}</p>
               <a href="detalhe.html?id=${pet.id}">🔎 Ver detalhes</a>
-            </div>
           `;
+
+          if (adminLiberado) {
+            card += `<br><button onclick="excluirPet(${pet.id})">🗑️ Excluir</button>`;
+          }
+
+          card += `</div>`;
+          document.getElementById("listaPets").innerHTML += card;
         });
       } catch (err) {
         document.getElementById("listaPets").innerHTML = "<p>Erro ao carregar pets.</p>";
       }
+    }
+
+    async function excluirPet(id) {
+      if (!senhaAdmin) return alert("Digite a senha de administrador primeiro!");
+      const confirmacao = confirm("Tem certeza que deseja excluir este pet?");
+      if (!confirmacao) return;
+
+      const res = await fetch(`${API_URL}/pets/${id}`, {
+        method: "DELETE",
+        headers: { "x-admin-pass": senhaAdmin }
+      });
+
+      const data = await res.json();
+      alert(data.mensagem);
+      carregarLista();
     }
 
     carregarLista();

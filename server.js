@@ -16,30 +16,21 @@ app.use(cors({
     "http://localhost:3000"              // ambiente local
   ],
   methods: ["GET", "POST", "PUT", "DELETE"],
-  allowedHeaders: ["Content-Type"]
+  allowedHeaders: ["Content-Type", "x-admin-pass"] // adiciona header da senha
 }));
 
 // Middleware para JSON
+app.use(express.json());
 
 // Servir arquivos estáticos (CSS, JS, imagens locais)
 app.use(express.static(__dirname));
 
 // Rotas para páginas HTML
-app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname, "index.html"));
-});
-app.get("/cadastro", (req, res) => {
-  res.sendFile(path.join(__dirname, "cadastro.html"));
-});
-app.get("/detalhe", (req, res) => {
-  res.sendFile(path.join(__dirname, "detalhe.html"));
-});
-app.get("/lista", (req, res) => {
-  res.sendFile(path.join(__dirname, "lista.html"));
-});
-app.get("/mapa", (req, res) => {
-  res.sendFile(path.join(__dirname, "mapa.html"));
-});
+app.get("/", (req, res) => res.sendFile(path.join(__dirname, "index.html")));
+app.get("/cadastro", (req, res) => res.sendFile(path.join(__dirname, "cadastro.html")));
+app.get("/detalhe", (req, res) => res.sendFile(path.join(__dirname, "detalhe.html")));
+app.get("/lista", (req, res) => res.sendFile(path.join(__dirname, "lista.html")));
+app.get("/mapa", (req, res) => res.sendFile(path.join(__dirname, "mapa.html")));
 
 // 🔹 Configuração do Cloudinary
 const cloudinary = require("cloudinary").v2;
@@ -54,7 +45,7 @@ cloudinary.config({
 const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
-    folder: "pets", // pasta no Cloudinary
+    folder: "pets",
     allowed_formats: ["jpg", "png", "jpeg"]
   }
 });
@@ -66,6 +57,16 @@ const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: { rejectUnauthorized: false }
 });
+
+// 🔹 Middleware de autenticação
+function autenticar(req, res, next) {
+  const senha = req.headers["x-admin-pass"];
+  if (senha === process.env.ADMIN_PASS) {
+    next();
+  } else {
+    res.status(403).json({ erro: "Acesso negado" });
+  }
+}
 
 // Rotas da API
 app.get("/pets", async (req, res) => {
@@ -90,7 +91,7 @@ app.get("/pets/:id", async (req, res) => {
 app.post("/pets", upload.single("foto"), async (req, res) => {
   try {
     const { nome, tipo, cor, contato, status, latitude, longitude } = req.body;
-    const fotoUrl = req.file ? req.file.path : null; // URL pública do Cloudinary
+    const fotoUrl = req.file ? req.file.path : null;
 
     const result = await pool.query(
       `INSERT INTO pets (nome, tipo, cor, contato, status, latitude, longitude, foto_url)
@@ -113,6 +114,17 @@ app.put("/pets/:id", async (req, res) => {
       [status, latitude, longitude, id]
     );
     res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// 🔹 Rota protegida: excluir pet
+app.delete("/pets/:id", autenticar, async (req, res) => {
+  try {
+    const { id } = req.params;
+    await pool.query("DELETE FROM pets WHERE id = $1", [id]);
+    res.json({ mensagem: "Pet excluído com sucesso" });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
