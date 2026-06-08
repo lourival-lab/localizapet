@@ -13,6 +13,7 @@
     header img { height: 60px; }
     nav { text-align: center; padding: 10px; background: #2E7D32; }
     nav a { color: white; margin: 0 10px; text-decoration: none; }
+    nav button { background:none; border:none; font-size:20px; cursor:pointer; color:white; }
     #map { height: 80vh; width: 100%; }
     .pet-icon { border-radius: 50%; border: 2px solid #2E7D32; background-color: white; }
     .logo-titulo { display: flex; align-items: center; justify-content: center; gap: 15px; }
@@ -23,7 +24,7 @@
     .pet-card { background: #fff; border: 1px solid #ccc; border-radius: 10px; padding: 15px; text-align: center; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
     .pet-card h3 { margin-top: 0; color: #2E7D32; }
     .pet-card img { width: 300px; height: 300px; object-fit: cover; border-radius: 8px; margin-bottom: 10px; }
-    .admin-area { text-align:center; margin:20px; }
+    #campoAdmin { display:none; text-align:center; margin:10px; }
   </style>
 </head>
 <body>
@@ -41,12 +42,15 @@
     <a href="cadastro.html">Cadastrar Pet</a>
     <a href="mapa.html">Visão geral</a>
     <a href="sobre.html">Sobre</a>
+    <!-- Ícone de cadeado -->
+    <button onclick="toggleAdmin()">🔒</button>
   </nav>
 
-  <!-- Área administrativa -->
-  <div class="admin-area">
+  <!-- Campo de senha escondido -->
+  <div id="campoAdmin">
     <input type="password" id="senhaAdmin" placeholder="Senha de administrador">
-    <button onclick="liberarAdmin()">Entrar como Admin</button>
+    <button onclick="liberarAdmin()">Entrar</button>
+    <button onclick="sairAdmin()">Sair</button>
   </div>
 
   <div id="listaPets">Carregando pets...</div>
@@ -59,6 +63,11 @@
     let adminLiberado = false;
     let senhaAdmin = "";
 
+    function toggleAdmin() {
+      const campo = document.getElementById("campoAdmin");
+      campo.style.display = campo.style.display === "none" ? "block" : "none";
+    }
+
     function liberarAdmin() {
       senhaAdmin = document.getElementById("senhaAdmin").value;
       if (senhaAdmin) {
@@ -66,6 +75,13 @@
         carregarLista();
         alert("Modo administrador ativado!");
       }
+    }
+
+    function sairAdmin() {
+      senhaAdmin = "";
+      adminLiberado = false;
+      carregarLista();
+      alert("Você saiu do modo administrador.");
     }
 
     async function carregarLista() {
