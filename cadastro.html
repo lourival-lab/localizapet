@@ -5,103 +5,34 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>AJUDE UM PET PERDIDO</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
-  
-  <!-- Favicon usando a logo do Cloudinary -->
   <link rel="icon" type="image/png" href="https://res.cloudinary.com/dnjtzhd3z/image/upload/f_png/v1779476116/logo_bn4yo4.png"/>
   
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #E8F5E9;
-      margin: 0;
-      padding: 0;
-    }
-    header {
-      background: #C8E6C9;
-      color: #2E7D32;
-      padding: 0px;
-      font-size: 18px;
-      font-weight: bold;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-    }
-    header img {
-      height: 60px; 
-      background: transparent;
-      display: block;
-      margin: 0;
-      padding: 0;
-    }
-    nav {
-      text-align: center;
-      padding: 10px;
-      background: #2E7D32;
-    }
-    nav a {
-      color: white;
-      margin: 0 10px;
-      text-decoration: none;
-      
-    }
-    #map {
-      height: 80vh;
-      width: 100%;
-    }
-    .pet-icon {
-      border-radius: 50%;
-      border: 2px solid #2E7D32;
-      background-color: white;
-    }
-.logo-titulo {
-  display: flex;
-  align-items: center;   /* alinha verticalmente logo e texto */
-  justify-content: center;
-  gap: 15px;             /* espaço entre logo e texto */
-}
-
-.logo-titulo img {
-  height: 80px;          /* ajusta tamanho da logo */
-}
-
-.texto h1 {
-  margin: 0;
-  padding: 0;
-  font-size: 22px;
-  font-weight: bold;
-  line-height: 1.2;
-}
-
-.subtitulo {
-  font-family: Verdana;
-  margin-top: 0px;
-  margin: 0px;
-  padding: 0;
-  font-size: 16px;
-  color: #2E7D32;
-  font-style: italic;
-  line-height: 1.2;
-}
- form{max-width:400px;margin:20px auto;background:#fff;padding:20px;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,0.2);}
-    label{display:block;margin-top:10px;font-weight:bold;}
-    input,select{width:100%;padding:8px;margin-top:5px;border:1px solid #ccc;border-radius:4px;}
-    button{margin-top:15px;padding:10px;background:#2E7D32;color:white;border:none;border-radius:4px;font-size:16px;cursor:pointer;}
-    button:hover{background:#1B5E20;}
-    .alert{color:red;font-size:14px;margin-top:10px;}
-    #previewFoto img {max-width:200px;border-radius:8px;box-shadow:0 2px 6px rgba(0,0,0,0.2);}
+    body { font-family: Arial, sans-serif; background: #E8F5E9; margin: 0; padding: 0; }
+    header { background: #C8E6C9; color: #2E7D32; padding: 0px; font-size: 18px; font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 10px; }
+    header img { height: 60px; }
+    nav { text-align: center; padding: 10px; background: #2E7D32; }
+    nav a { color: white; margin: 0 10px; text-decoration: none; }
+    form { max-width:400px; margin:20px auto; background:#fff; padding:20px; border-radius:8px; box-shadow:0 2px 6px rgba(0,0,0,0.2); }
+    label { display:block; margin-top:10px; font-weight:bold; }
+    input,select { width:100%; padding:8px; margin-top:5px; border:1px solid #ccc; border-radius:4px; }
+    button { margin-top:15px; padding:10px; background:#2E7D32; color:white; border:none; border-radius:4px; font-size:16px; cursor:pointer; }
+    button:hover { background:#1B5E20; }
+    .alert { color:red; font-size:14px; margin-top:10px; }
+    #previewFoto img { max-width:200px; border-radius:8px; box-shadow:0 2px 6px rgba(0,0,0,0.2); }
+    .foto-buttons { display:flex; gap:10px; margin-top:5px; }
   </style>
 </head>
 <body>
-   <header>
-  <div class="logo-titulo">
-    <img src="https://res.cloudinary.com/dnjtzhd3z/image/upload/f_png/v1779476116/logo_bn4yo4.png" alt="Logo">
-    <div class="texto">
-      <h1>&nbsp;&nbsp;CADASTRO DE PET</h1>
-      <p class="subtitulo">Porque eles precisam de nós!</p>
+  <header>
+    <div class="logo-titulo">
+      <img src="https://res.cloudinary.com/dnjtzhd3z/image/upload/f_png/v1779476116/logo_bn4yo4.png" alt="Logo">
+      <div class="texto">
+        <h1>&nbsp;&nbsp;CADASTRO DE PET</h1>
+        <p class="subtitulo">Porque eles precisam de nós!</p>
+      </div>
     </div>
-  </div>
-</header>
+  </header>
   <nav>
     <a href="index.html">Início</a>
     <a href="lista.html">Lista de Pets</a>
@@ -127,9 +58,16 @@
     <label for="contato">Contato</label>
     <input type="text" id="contato" required>
 
-    <label for="foto">Foto do Pet</label>
-    <!-- ✅ Agora o input permite câmera ou galeria -->
-    <input type="file" id="foto" name="foto" accept="image/*" required>
+    <label>Foto do Pet</label>
+    <div class="foto-buttons">
+      <!-- Botão para escolher da galeria -->
+      <input type="file" id="fotoGaleria" name="foto" accept="image/*" style="display:none;" />
+      <button type="button" onclick="document.getElementById('fotoGaleria').click()">📂 Galeria</button>
+
+      <!-- Botão para abrir direto a câmera -->
+      <input type="file" id="fotoCamera" name="foto" accept="image/*" capture="environment" style="display:none;" />
+      <button type="button" onclick="document.getElementById('fotoCamera').click()">📷 Câmera</button>
+    </div>
     <div id="previewFoto"></div>
 
     <label for="status">Status</label>
@@ -175,8 +113,8 @@
     }
 
     // Preview da foto
-    document.getElementById("foto").addEventListener("change", function() {
-      const file = this.files[0];
+    function previewImagem(input) {
+      const file = input.files[0];
       if (file) {
         const reader = new FileReader();
         reader.onload = function(e) {
@@ -185,6 +123,14 @@
         };
         reader.readAsDataURL(file);
       }
+    }
+
+    document.getElementById("fotoGaleria").addEventListener("change", function() {
+      previewImagem(this);
+    });
+
+    document.getElementById("fotoCamera").addEventListener("change", function() {
+      previewImagem(this);
     });
 
     async function cadastrarPet(event) {
@@ -198,7 +144,8 @@
       const lat = latitude || parseFloat(document.getElementById("latitude").value);
       const lng = longitude || parseFloat(document.getElementById("longitude").value);
 
-      const fotoFile = document.getElementById("foto").files[0];
+      // Pega a foto de qualquer input
+      const fotoFile = document.getElementById("fotoGaleria").files[0] || document.getElementById("fotoCamera").files[0];
       if (!fotoFile) {
         alert("Selecione uma foto do pet antes de cadastrar.");
         return;
